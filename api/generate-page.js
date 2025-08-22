@@ -106,6 +106,7 @@ Return ONLY the complete HTML code, nothing else.`;
       access: 'public',
       contentType: 'text/html',
       addRandomSuffix: false,  // Use consistent URLs
+      allowOverwrite: true,     // CRITICAL: Allow updating existing pages
       cacheControlMaxAge: 0     // No caching for live updates
     });
     
@@ -122,6 +123,7 @@ Return ONLY the complete HTML code, nothing else.`;
       access: 'public',
       contentType: 'application/json',
       addRandomSuffix: false,
+      allowOverwrite: true,  // Allow updating metadata too
       cacheControlMaxAge: 0
     });
     

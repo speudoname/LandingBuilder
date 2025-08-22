@@ -85,7 +85,8 @@ module.exports = async (req, res) => {
     const { url } = await put(`pages/${fileName}`, htmlContent, {
       access: 'public',
       contentType: 'text/html',
-      addRandomSuffix: false
+      addRandomSuffix: false,
+      allowOverwrite: true  // CRITICAL: Allow updating existing pages
     });
     
     // Update metadata
@@ -99,7 +100,8 @@ module.exports = async (req, res) => {
     }), {
       access: 'public',
       contentType: 'application/json',
-      addRandomSuffix: false
+      addRandomSuffix: false,
+      allowOverwrite: true  // Allow updating metadata too
     });
     
     console.log('Page updated at:', url);
