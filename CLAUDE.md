@@ -26,10 +26,10 @@ fetch('https://api.anthropic.com/v1/messages', {...})
 ```
 
 ### 2. Working Model
-The only Claude model that works with the user's API key is:
-- `claude-3-haiku-20240307`
+Using Claude 3.5 Sonnet for better code quality:
+- `claude-3-5-sonnet-20241022`
 
-Do NOT attempt to use other models as they will return 404 errors.
+This provides superior HTML/CSS generation compared to Haiku.
 
 ### 3. Architecture Overview
 - **Frontend**: Interactive chat UI with live preview (public/index.html)
