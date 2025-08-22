@@ -560,7 +560,11 @@
           <div class="message-avatar">AI</div>
           <div class="message-content">
             Welcome to Landinger! 👋<br><br>
-            Start by creating a new project, then tell me what kind of page you want to build. You can create multiple pages and link them together to build complete funnels.
+            Just start typing what you want to build and I'll create it for you. For example:<br>
+            • "Create a landing page for my SaaS product"<br>
+            • "Build a thank you page with a download button"<br>
+            • "Make an order form for my course"<br><br>
+            I'll automatically set up your project and pages as needed!
           </div>
         </div>
       </div>
@@ -915,10 +919,42 @@
       
       if (!message || state.isGenerating) return;
       
-      if (!state.currentProject || !state.currentPage) {
-        alert('Please select or create a project and page first');
-        return;
+      // If no project exists, create one automatically
+      if (!state.currentProject) {
+        const projectName = 'My Project';
+        const project = {
+          id: Date.now().toString(),
+          name: projectName,
+          type: 'website',
+          pages: []
+        };
+        state.projects.push(project);
+        state.currentProject = project.id;
+        renderProjects();
       }
+      
+      // If no page exists, create one automatically
+      if (!state.currentPage) {
+        const pageName = 'Landing Page';
+        const sanitizedName = 'landing_page';
+        const page = {
+          id: sanitizedName,
+          name: pageName,
+          type: 'landing',
+          content: null,
+          url: null,
+          liveUrl: null
+        };
+        const project = state.projects.find(p => p.id === state.currentProject);
+        if (project) {
+          project.pages.push(page);
+          state.currentPage = page.id;
+          saveState();  // Save state after creating page
+          renderPages();
+        }
+      }
+      
+      saveState();  // Ensure state is saved
 
       // Add user message
       addMessage('user', message);
