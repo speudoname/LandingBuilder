@@ -34,8 +34,9 @@ module.exports = async (req, res) => {
           const metadata = await response.json();
           pages.push({
             ...metadata,
-            url: metadata.pageUrl,
-            liveUrl: metadata.pageUrl // It's already live!
+            url: `/api/page/${metadata.name}`,  // Serve from your domain
+            liveUrl: `https://landinger.vercel.app/api/page/${metadata.name}`,  // Full URL on your domain
+            blobUrl: metadata.pageUrl  // Keep original blob URL
           });
         } catch (error) {
           console.error('Error reading metadata:', error);

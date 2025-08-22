@@ -494,13 +494,15 @@
                 if (response.ok) {
                     showMessage(`✅ ${data.message}`, 'success');
                     
-                    if (data.blobUrl) {
+                    if (data.liveUrl) {
                         // Show success animation for instant publishing
                         const successAnim = document.getElementById('successAnimation');
                         successAnim.classList.add('show');
                         setTimeout(() => {
                             successAnim.classList.remove('show');
-                        }, 3000);
+                            // Open the page in a new tab
+                            window.open(data.liveUrl, '_blank');
+                        }, 2000);
                     }
                     
                     document.getElementById('pageName').value = '';
