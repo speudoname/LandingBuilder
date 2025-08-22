@@ -84,8 +84,8 @@ Return ONLY the HTML code starting with <!DOCTYPE html> and ending with </html>.
     while (retries > 0) {
       try {
         message = await anthropic.messages.create({
-          model: 'claude-3-haiku-20240307',  // Back to Haiku - only model that works with user's API key
-          max_tokens: 4096,
+          model: 'claude-3-5-haiku-20241022',  // Claude 3.5 Haiku - newer and better!
+          max_tokens: 8192,
           temperature: 0.7,
           messages: [
             {

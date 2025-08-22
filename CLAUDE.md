@@ -25,12 +25,17 @@ const message = await anthropic.messages.create({
 fetch('https://api.anthropic.com/v1/messages', {...})
 ```
 
-### 2. Working Model  
-The only model that works with the user's API key:
-- `claude-3-haiku-20240307`
+### 2. Working Models  
+Models available with the user's API key (tested via SDK):
+- ✅ `claude-3-5-haiku-20241022` - **Currently using this** (Claude 3.5 Haiku - latest)
+- ✅ `claude-3-haiku-20240307` - (Claude 3 Haiku - older version)
 
-Note: Sonnet 3.5 and Sonnet 4 models return 404 errors with the current API key.
-To use newer models, you need to upgrade your Anthropic API plan.
+Models NOT available (404 errors):
+- ❌ `claude-3-5-sonnet-20241022` - Sonnet models require API plan upgrade
+- ❌ `claude-3-opus-20240229` - Opus requires API plan upgrade
+- ❌ Claude 4 models - Not yet available in the API
+
+Note: We're using Claude 3.5 Haiku which is significantly better than Claude 3 Haiku for code generation.
 
 ### 3. Architecture Overview
 - **Frontend**: Interactive chat UI with live preview (public/index.html)
