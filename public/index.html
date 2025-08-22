@@ -785,11 +785,16 @@
         return;
       }
 
+      // Sanitize the page name for use as ID
+      const sanitizedName = name.replace(/[^a-z0-9-_]/gi, '_').toLowerCase();
+
       const page = {
-        id: Date.now().toString(),
+        id: sanitizedName,  // Use sanitized name as ID for consistency
         name: name,
         type: type,
-        content: null
+        content: null,
+        url: null,
+        liveUrl: null
       };
 
       const project = state.projects.find(p => p.id === state.currentProject);
@@ -800,8 +805,11 @@
         renderPages();
         closeModal('newPageModal');
         
+        // Clear input fields
+        document.getElementById('pageName').value = '';
+        
         // Start conversation for this page
-        addMessage('ai', `Let's create your ${type === 'custom' ? '' : type} "${name}". What should this page include?`);
+        addMessage('ai', `Let's create your ${type === 'custom' ? '' : type} page "${name}". What should this page include?`);
       }
     }
 
@@ -950,7 +958,7 @@
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             instructions: buildPrompt(context),
-            pageName: page.name
+            pageName: page.id  // Use the sanitized ID as the page name for consistency
           })
         });
 
@@ -992,15 +1000,26 @@
       let prompt = '';
       
       if (context.currentContent) {
-        prompt = `Update the existing ${context.pageType} page "${context.pageName}" with these changes: ${context.instruction}\n\n`;
-        prompt += `Current page content to modify:\n${context.currentContent}\n\n`;
+        // For updates, include current content
+        prompt = `Update this existing HTML page with these changes: ${context.instruction}`;
+        // Don't include the full HTML in the prompt to avoid token limits
       } else {
-        prompt = `Create a ${context.pageType} page called "${context.pageName}" for the ${context.projectName} project. `;
-        prompt += `${context.instruction}\n\n`;
-      }
-      
-      if (context.otherPages.length > 0) {
-        prompt += `This project also has these pages that should be linked appropriately: ${context.otherPages.join(', ')}\n`;
+        // For new pages, create from scratch
+        const pageTypeDescriptions = {
+          'landing': 'a professional landing page',
+          'thankyou': 'a thank you page',
+          'order': 'an order form page',
+          'upsell': 'an upsell offer page',
+          'downsell': 'a downsell offer page',
+          'custom': 'a custom page'
+        };
+        
+        const pageDesc = pageTypeDescriptions[context.pageType] || 'a page';
+        prompt = `Create ${pageDesc} with the following requirements: ${context.instruction}`;
+        
+        if (context.projectName) {
+          prompt += ` This is for the "${context.projectName}" project.`;
+        }
       }
       
       return prompt;
