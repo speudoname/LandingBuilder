@@ -1,7 +1,6 @@
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
-const bodyParser = require('body-parser');
 const path = require('path');
 const fs = require('fs').promises;
 const Anthropic = require('@anthropic-ai/sdk');
@@ -14,7 +13,7 @@ const anthropic = new Anthropic({
 });
 
 app.use(cors());
-app.use(bodyParser.json());
+app.use(express.json());
 app.use(express.static('public'));
 app.use('/pages', express.static('generated-pages'));
 
