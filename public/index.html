@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Landinger - AI Page Builder Chat</title>
+  <title>Landinger - Conversational Page Builder</title>
   <style>
     * {
       margin: 0;
@@ -23,7 +23,7 @@
     /* Header */
     .header {
       background: #2a2a2a;
-      padding: 20px;
+      padding: 15px 20px;
       border-bottom: 1px solid #333;
       display: flex;
       align-items: center;
@@ -31,25 +31,35 @@
     }
 
     .header h1 {
-      font-size: 1.5rem;
+      font-size: 1.3rem;
       color: #fff;
       display: flex;
       align-items: center;
       gap: 10px;
     }
 
-    .current-page {
-      font-size: 0.9rem;
-      color: #888;
+    .pages-list {
       display: flex;
+      gap: 15px;
       align-items: center;
-      gap: 10px;
+      font-size: 0.85rem;
     }
 
-    .page-url {
+    .page-link {
       color: #667eea;
       text-decoration: none;
-      hover: underline;
+      padding: 4px 8px;
+      border-radius: 4px;
+      transition: background 0.3s;
+    }
+
+    .page-link:hover {
+      background: #333;
+    }
+
+    .page-link.current {
+      background: #333;
+      font-weight: 600;
     }
 
     /* Chat Container */
@@ -159,6 +169,10 @@
       font-size: 0.95rem;
       outline: none;
       transition: border-color 0.3s;
+      resize: vertical;
+      min-height: 44px;
+      max-height: 120px;
+      font-family: inherit;
     }
 
     .chat-input:focus {
@@ -174,6 +188,7 @@
       cursor: pointer;
       font-weight: 600;
       transition: background 0.3s;
+      align-self: flex-end;
     }
 
     .send-btn:hover {
@@ -183,42 +198,6 @@
     .send-btn:disabled {
       opacity: 0.5;
       cursor: not-allowed;
-    }
-
-    /* Page Selector */
-    .page-selector {
-      padding: 15px 20px;
-      background: #2a2a2a;
-      border-bottom: 1px solid #333;
-      display: flex;
-      gap: 10px;
-      align-items: center;
-    }
-
-    .page-select {
-      padding: 8px 12px;
-      background: #1a1a1a;
-      border: 1px solid #444;
-      border-radius: 6px;
-      color: #e0e0e0;
-      font-size: 0.9rem;
-      min-width: 200px;
-    }
-
-    .new-page-btn {
-      padding: 8px 16px;
-      background: transparent;
-      border: 1px solid #667eea;
-      color: #667eea;
-      border-radius: 6px;
-      cursor: pointer;
-      font-size: 0.9rem;
-      transition: all 0.3s;
-    }
-
-    .new-page-btn:hover {
-      background: #667eea;
-      color: white;
     }
 
     /* Loading */
@@ -237,19 +216,7 @@
       100% { transform: rotate(360deg); }
     }
 
-    /* Code blocks */
-    .code-block {
-      background: #1a1a1a;
-      border: 1px solid #444;
-      border-radius: 6px;
-      padding: 12px;
-      margin: 10px 0;
-      font-family: 'Monaco', 'Menlo', monospace;
-      font-size: 0.85rem;
-      overflow-x: auto;
-    }
-
-    /* Info box */
+    /* Info boxes */
     .info-box {
       background: #2a3f5f;
       border-left: 4px solid #667eea;
@@ -257,26 +224,46 @@
       margin: 10px 0;
       border-radius: 4px;
     }
+
+    .page-list-inline {
+      display: inline-flex;
+      gap: 10px;
+      margin-top: 10px;
+      flex-wrap: wrap;
+    }
+
+    .page-tag {
+      background: #333;
+      padding: 4px 10px;
+      border-radius: 4px;
+      font-size: 0.85rem;
+      color: #667eea;
+    }
+
+    code {
+      background: #333;
+      padding: 2px 6px;
+      border-radius: 3px;
+      font-family: 'Monaco', 'Menlo', monospace;
+      font-size: 0.9em;
+    }
+
+    a {
+      color: #667eea;
+      text-decoration: none;
+    }
+
+    a:hover {
+      text-decoration: underline;
+    }
   </style>
 </head>
 <body>
   <!-- Header -->
   <div class="header">
     <h1>🚀 Landinger</h1>
-    <div class="current-page" id="currentPageInfo">
-      <span>No page selected</span>
-    </div>
-  </div>
-
-  <!-- Page Selector -->
-  <div class="page-selector">
-    <select class="page-select" id="pageSelect" onchange="switchPage()">
-      <option value="">Select a page...</option>
-    </select>
-    <button class="new-page-btn" onclick="createNewPage()">+ New Page</button>
-    <div style="flex: 1;"></div>
-    <div style="color: #888; font-size: 0.85rem;">
-      Pages are saved at: landinger.vercel.app/[page-name].html
+    <div class="pages-list" id="pagesList">
+      <span style="color: #888;">No pages yet</span>
     </div>
   </div>
 
@@ -288,14 +275,17 @@
         <div class="message-avatar">AI</div>
         <div class="message-content">
           Welcome to Landinger! 👋<br><br>
-          Create a new page or select an existing one to start building. Just describe what you want and I'll create or modify the HTML for you.<br><br>
+          Just tell me what you want to build. For example:<br><br>
           <div class="info-box">
-            💡 <strong>How it works:</strong><br>
-            • First message creates the page<br>
-            • Each following message updates it<br>
-            • View your page at the URL shown above<br>
-            • I maintain context of all previous changes
+            💬 <strong>Try saying:</strong><br>
+            • "Create a landing page for my SaaS product"<br>
+            • "I need a landing page and a thank you page"<br>
+            • "Build a sales funnel with landing, order form, and thank you pages"<br>
+            • "Add a contact form that submits to the thank you page"<br>
+            • "Make the header blue with larger text"
           </div>
+          <br>
+          I'll create the pages, handle the connections, and you can modify them anytime through our conversation.
         </div>
       </div>
     </div>
@@ -303,13 +293,12 @@
     <!-- Input Area -->
     <div class="input-area">
       <div class="input-wrapper">
-        <input 
-          type="text" 
+        <textarea 
           class="chat-input" 
           id="chatInput" 
-          placeholder="Describe what you want to build or change..."
-          onkeypress="handleKeyPress(event)"
-        >
+          placeholder="Tell me what you want to build..."
+          onkeydown="handleKeyPress(event)"
+        ></textarea>
         <button class="send-btn" id="sendBtn" onclick="sendMessage()">Send</button>
       </div>
     </div>
@@ -320,19 +309,17 @@
     let state = {
       pages: {},
       currentPage: null,
-      isGenerating: false
+      isGenerating: false,
+      conversationHistory: []
     };
 
     // Load state
     function loadState() {
-      const saved = localStorage.getItem('landingerChatState');
+      const saved = localStorage.getItem('landingerState');
       if (saved) {
         state = { ...state, ...JSON.parse(saved) };
-        renderPages();
-        if (state.currentPage) {
-          loadChatHistory();
-          updatePageInfo();
-        }
+        renderPagesList();
+        loadConversationHistory();
       }
     }
 
@@ -340,123 +327,61 @@
     function saveState() {
       const stateToSave = { ...state };
       delete stateToSave.isGenerating;
-      localStorage.setItem('landingerChatState', JSON.stringify(stateToSave));
+      localStorage.setItem('landingerState', JSON.stringify(stateToSave));
     }
 
     // Initialize
     document.addEventListener('DOMContentLoaded', () => {
       loadState();
-      loadExistingPages();
+      adjustTextareaHeight();
     });
 
-    // Load existing pages from API
-    async function loadExistingPages() {
-      try {
-        const response = await fetch('/api/list-pages');
-        if (!response.ok) return;
-        
-        const data = await response.json();
-        if (data.pages && data.pages.length > 0) {
-          data.pages.forEach(page => {
-            const pageId = page.name.replace('.html', '');
-            if (!state.pages[pageId]) {
-              state.pages[pageId] = {
-                name: page.title || pageId,
-                url: page.liveUrl || page.url,
-                messages: []
-              };
-            }
-          });
-          saveState();
-          renderPages();
-        }
-      } catch (error) {
-        console.log('Could not load existing pages:', error);
-      }
-    }
-
-    // Render pages in dropdown
-    function renderPages() {
-      const select = document.getElementById('pageSelect');
-      select.innerHTML = '<option value="">Select a page...</option>';
-      
-      Object.keys(state.pages).forEach(pageId => {
-        const option = document.createElement('option');
-        option.value = pageId;
-        option.textContent = state.pages[pageId].name;
-        if (pageId === state.currentPage) {
-          option.selected = true;
-        }
-        select.appendChild(option);
+    // Auto-resize textarea
+    function adjustTextareaHeight() {
+      const textarea = document.getElementById('chatInput');
+      textarea.addEventListener('input', function() {
+        this.style.height = 'auto';
+        this.style.height = (this.scrollHeight) + 'px';
       });
     }
 
-    // Switch page
-    function switchPage() {
-      const select = document.getElementById('pageSelect');
-      state.currentPage = select.value || null;
-      saveState();
-      loadChatHistory();
-      updatePageInfo();
-    }
-
-    // Create new page
-    function createNewPage() {
-      const name = prompt('Enter page name (e.g., "landing", "about", "contact"):');
-      if (!name) return;
+    // Render pages list in header
+    function renderPagesList() {
+      const container = document.getElementById('pagesList');
+      const pageKeys = Object.keys(state.pages);
       
-      const pageId = name.toLowerCase().replace(/[^a-z0-9-_]/g, '_');
-      
-      if (state.pages[pageId]) {
-        alert('Page already exists!');
-        return;
-      }
-      
-      state.pages[pageId] = {
-        name: name,
-        url: `https://landinger.vercel.app/${pageId}.html`,
-        messages: []
-      };
-      
-      state.currentPage = pageId;
-      saveState();
-      renderPages();
-      loadChatHistory();
-      updatePageInfo();
-      
-      addMessage('ai', `Created new page "${name}". Tell me what you want to build!`, false);
-    }
-
-    // Update page info
-    function updatePageInfo() {
-      const info = document.getElementById('currentPageInfo');
-      if (state.currentPage && state.pages[state.currentPage]) {
-        const page = state.pages[state.currentPage];
-        info.innerHTML = `
-          <span>Current page: <strong>${page.name}</strong></span>
-          <span>→</span>
-          <a href="${page.url}" target="_blank" class="page-url">${page.url}</a>
-        `;
+      if (pageKeys.length === 0) {
+        container.innerHTML = '<span style="color: #888;">No pages yet</span>';
       } else {
-        info.innerHTML = '<span>No page selected</span>';
+        container.innerHTML = pageKeys.map(pageId => {
+          const page = state.pages[pageId];
+          return `<a href="${page.url}" target="_blank" class="page-link ${pageId === state.currentPage ? 'current' : ''}">${page.name}</a>`;
+        }).join('');
       }
     }
 
-    // Load chat history
-    function loadChatHistory() {
+    // Load conversation history
+    function loadConversationHistory() {
       const container = document.getElementById('messages');
       container.innerHTML = '';
       
-      if (!state.currentPage || !state.pages[state.currentPage]) {
-        addMessage('ai', 'Select or create a page to start building!', false);
-        return;
-      }
-      
-      const messages = state.pages[state.currentPage].messages || [];
-      if (messages.length === 0) {
-        addMessage('ai', `Ready to build "${state.pages[state.currentPage].name}". What should this page include?`, false);
+      if (state.conversationHistory.length === 0) {
+        addMessage('ai', `Welcome to Landinger! 👋<br><br>
+          Just tell me what you want to build. For example:<br><br>
+          <div class="info-box">
+            💬 <strong>Try saying:</strong><br>
+            • "Create a landing page for my SaaS product"<br>
+            • "I need a landing page and a thank you page"<br>
+            • "Build a sales funnel with landing, order form, and thank you pages"<br>
+            • "Add a contact form that submits to the thank you page"<br>
+            • "Make the header blue with larger text"
+          </div>
+          <br>
+          I'll create the pages, handle the connections, and you can modify them anytime through our conversation.`, false);
       } else {
-        messages.forEach(msg => addMessage(msg.role, msg.content, false));
+        state.conversationHistory.forEach(msg => {
+          addMessage(msg.role, msg.content, false);
+        });
       }
     }
 
@@ -472,8 +397,8 @@
       container.appendChild(message);
       container.scrollTop = container.scrollHeight;
 
-      if (save && state.currentPage && state.pages[state.currentPage]) {
-        state.pages[state.currentPage].messages.push({ role, content });
+      if (save) {
+        state.conversationHistory.push({ role, content });
         saveState();
       }
     }
@@ -481,8 +406,69 @@
     // Handle key press
     function handleKeyPress(event) {
       if (event.key === 'Enter' && !event.shiftKey) {
+        event.preventDefault();
         sendMessage();
       }
+    }
+
+    // Parse user intent
+    function parseUserIntent(message) {
+      const lower = message.toLowerCase();
+      const intent = {
+        action: null,
+        pages: [],
+        modifications: [],
+        currentPage: state.currentPage
+      };
+
+      // Check for page creation
+      if (lower.includes('create') || lower.includes('build') || lower.includes('make') || lower.includes('need')) {
+        intent.action = 'create';
+        
+        // Extract page types mentioned
+        const pageTypes = [
+          { keywords: ['landing'], name: 'landing', type: 'landing' },
+          { keywords: ['thank you', 'thanks', 'confirmation'], name: 'thankyou', type: 'thankyou' },
+          { keywords: ['order', 'checkout', 'payment'], name: 'order', type: 'order' },
+          { keywords: ['contact'], name: 'contact', type: 'contact' },
+          { keywords: ['about'], name: 'about', type: 'about' },
+          { keywords: ['sales', 'funnel'], name: 'funnel', type: 'funnel' }
+        ];
+
+        pageTypes.forEach(pageType => {
+          if (pageType.keywords.some(keyword => lower.includes(keyword))) {
+            if (pageType.type === 'funnel') {
+              // Sales funnel = landing + order + thankyou
+              intent.pages.push({ name: 'landing', type: 'landing' });
+              intent.pages.push({ name: 'order', type: 'order' });
+              intent.pages.push({ name: 'thankyou', type: 'thankyou' });
+            } else {
+              intent.pages.push({ name: pageType.name, type: pageType.type });
+            }
+          }
+        });
+
+        // If no specific pages mentioned but creation requested, assume landing page
+        if (intent.pages.length === 0) {
+          intent.pages.push({ name: 'landing', type: 'landing' });
+        }
+      } 
+      // Check for modifications to existing page
+      else if (state.currentPage) {
+        intent.action = 'modify';
+        intent.modifications.push(message);
+      }
+      // Check for page switching
+      else if (lower.includes('switch to') || lower.includes('open') || lower.includes('go to')) {
+        intent.action = 'switch';
+        Object.keys(state.pages).forEach(pageId => {
+          if (lower.includes(pageId)) {
+            intent.currentPage = pageId;
+          }
+        });
+      }
+
+      return intent;
     }
 
     // Send message
@@ -491,15 +477,14 @@
       const message = input.value.trim();
       
       if (!message || state.isGenerating) return;
-      
-      if (!state.currentPage) {
-        alert('Please create or select a page first');
-        return;
-      }
 
       // Add user message
       addMessage('user', message);
       input.value = '';
+      input.style.height = 'auto';
+
+      // Parse what the user wants
+      const intent = parseUserIntent(message);
 
       // Disable input
       state.isGenerating = true;
@@ -507,47 +492,130 @@
       document.getElementById('sendBtn').innerHTML = '<span class="loading"></span>';
 
       try {
-        // Call API to generate/update page
-        const response = await fetch('/api/generate-page', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            instructions: message,
-            pageName: state.currentPage
-          })
-        });
+        if (intent.action === 'create' && intent.pages.length > 0) {
+          // Create new pages
+          for (const pageInfo of intent.pages) {
+            const pageId = pageInfo.name;
+            
+            // Skip if page already exists
+            if (state.pages[pageId]) {
+              addMessage('ai', `Page "${pageInfo.name}" already exists. I'll update it instead.`);
+              state.currentPage = pageId;
+            } else {
+              // Create new page entry
+              state.pages[pageId] = {
+                name: pageInfo.name,
+                type: pageInfo.type,
+                url: `https://landinger.vercel.app/${pageId}.html`,
+                created: new Date().toISOString()
+              };
+              state.currentPage = pageId;
+              saveState();
+              renderPagesList();
+            }
 
-        if (!response.ok) {
-          const errorText = await response.text();
-          throw new Error(`API Error: ${errorText}`);
-        }
-
-        const data = await response.json();
-        
-        if (data.success) {
-          // Update page URL if needed
-          if (data.liveUrl) {
-            state.pages[state.currentPage].url = data.liveUrl;
-            saveState();
-            updatePageInfo();
+            // Generate the page
+            const instructions = buildPageInstructions(pageInfo, message, intent.pages);
+            await generatePage(pageId, instructions);
           }
+
+          // Show summary
+          const pageLinks = intent.pages.map(p => 
+            `<a href="https://landinger.vercel.app/${p.name}.html" target="_blank">${p.name}</a>`
+          ).join(', ');
           
-          // Add success message
-          addMessage('ai', `✅ Page updated successfully!<br><br>View it at: <a href="${data.liveUrl}" target="_blank" style="color: #667eea;">${data.liveUrl}</a><br><br>What would you like to change next?`);
+          addMessage('ai', `✅ Created ${intent.pages.length} page(s): ${pageLinks}<br><br>What would you like to modify or add?`);
+          
+        } else if (intent.action === 'modify' && state.currentPage) {
+          // Modify existing page
+          await generatePage(state.currentPage, message);
+          
+          const pageUrl = state.pages[state.currentPage].url;
+          addMessage('ai', `✅ Updated <a href="${pageUrl}" target="_blank">${state.currentPage}</a> page<br><br>What else would you like to change?`);
+          
+        } else if (intent.action === 'switch') {
+          state.currentPage = intent.currentPage;
+          saveState();
+          renderPagesList();
+          addMessage('ai', `Switched to ${intent.currentPage} page. What would you like to modify?`);
+          
         } else {
-          throw new Error(data.error || 'Failed to generate page');
+          // No current page and no clear creation intent
+          if (Object.keys(state.pages).length === 0) {
+            addMessage('ai', `I'll help you get started! Tell me what kind of website you want to build. For example: "Create a landing page for my product"`);
+          } else {
+            const pageList = Object.keys(state.pages).map(p => `<code>${p}</code>`).join(', ');
+            addMessage('ai', `You have these pages: ${pageList}<br><br>You can:<br>• Modify them by describing changes<br>• Create new pages by saying what you need`);
+          }
         }
+        
       } catch (error) {
         console.error('Error:', error);
-        if (error.message.includes('Overloaded')) {
-          addMessage('ai', '⏳ The AI is currently busy. Please try again in a few seconds.');
-        } else {
-          addMessage('ai', `❌ Error: ${error.message}`);
-        }
+        addMessage('ai', `❌ Error: ${error.message}`);
       } finally {
         state.isGenerating = false;
         document.getElementById('sendBtn').disabled = false;
         document.getElementById('sendBtn').textContent = 'Send';
+      }
+    }
+
+    // Build instructions for page creation
+    function buildPageInstructions(pageInfo, userMessage, allPages) {
+      let instructions = userMessage;
+      
+      // Add context about page type
+      if (pageInfo.type === 'landing') {
+        instructions += ". This is the main landing page.";
+      } else if (pageInfo.type === 'thankyou') {
+        instructions += ". This is a thank you page that users see after submitting a form.";
+        if (allPages.some(p => p.type === 'landing')) {
+          instructions += " Include a message thanking them for their submission.";
+        }
+      } else if (pageInfo.type === 'order') {
+        instructions += ". This is an order form page where users can purchase.";
+        if (allPages.some(p => p.type === 'thankyou')) {
+          instructions += " The form should redirect to /thankyou.html on submission.";
+        }
+      }
+      
+      // Add navigation context if multiple pages
+      if (allPages.length > 1) {
+        const otherPages = allPages.filter(p => p.name !== pageInfo.name);
+        if (otherPages.length > 0) {
+          instructions += ` Include links to: ${otherPages.map(p => `/${p.name}.html`).join(', ')}.`;
+        }
+      }
+      
+      return instructions;
+    }
+
+    // Generate or update page
+    async function generatePage(pageId, instructions) {
+      const response = await fetch('/api/generate-page', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          instructions: instructions,
+          pageName: pageId
+        })
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`Failed to generate page: ${errorText}`);
+      }
+
+      const data = await response.json();
+      
+      if (data.success) {
+        // Update page URL if needed
+        if (data.liveUrl && state.pages[pageId]) {
+          state.pages[pageId].url = data.liveUrl;
+          saveState();
+          renderPagesList();
+        }
+      } else {
+        throw new Error(data.error || 'Failed to generate page');
       }
     }
   </script>
