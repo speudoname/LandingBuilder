@@ -1060,17 +1060,21 @@
         const data = await response.json();
         
         if (data.success) {
-          // Update page content
-          page.content = data.htmlContent || data.blobUrl;
+          // Update page content - store the actual HTML for future modifications
+          if (data.htmlContent) {
+            page.content = data.htmlContent;
+          }
           page.url = data.pageUrl;
           page.liveUrl = data.liveUrl;
+          page.blobUrl = data.blobUrl;
           saveState();
           
           // Update preview
           updatePreview();
           
-          // Add AI response
-          addMessage('ai', `✅ Page updated successfully! You can see the changes in the preview.`);
+          // Add AI response with more specific feedback
+          const action = page.content ? 'updated' : 'created';
+          addMessage('ai', `✅ Page ${action} successfully! You can see the changes in the preview. What would you like to modify next?`);
         } else {
           throw new Error(data.error || 'Failed to generate page');
         }
@@ -1084,34 +1088,11 @@
       }
     }
 
-    // Build prompt
+    // Build prompt - simplified to just send the instruction
     function buildPrompt(context) {
-      let prompt = '';
-      
-      if (context.currentContent) {
-        // For updates, include current content
-        prompt = `Update this existing HTML page with these changes: ${context.instruction}`;
-        // Don't include the full HTML in the prompt to avoid token limits
-      } else {
-        // For new pages, create from scratch
-        const pageTypeDescriptions = {
-          'landing': 'a professional landing page',
-          'thankyou': 'a thank you page',
-          'order': 'an order form page',
-          'upsell': 'an upsell offer page',
-          'downsell': 'a downsell offer page',
-          'custom': 'a custom page'
-        };
-        
-        const pageDesc = pageTypeDescriptions[context.pageType] || 'a page';
-        prompt = `Create ${pageDesc} with the following requirements: ${context.instruction}`;
-        
-        if (context.projectName) {
-          prompt += ` This is for the "${context.projectName}" project.`;
-        }
-      }
-      
-      return prompt;
+      // Just send the user's instruction
+      // The API will determine if it's an update or creation
+      return context.instruction;
     }
 
     // Update preview
