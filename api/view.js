@@ -73,7 +73,9 @@ module.exports = async (req, res) => {
     
     // Serve the HTML content as a true HTML page
     res.setHeader('Content-Type', 'text/html; charset=utf-8');
-    res.setHeader('Cache-Control', 'public, max-age=3600'); // Cache for 1 hour
+    res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate'); // NO CACHING for live updates!
+    res.setHeader('Pragma', 'no-cache'); // HTTP 1.0 compatibility
+    res.setHeader('Expires', '0'); // Expire immediately
     
     // Important headers for payment gateways
     res.setHeader('X-Content-Type-Options', 'nosniff');

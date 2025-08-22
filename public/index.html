@@ -1071,10 +1071,15 @@
           page.blobUrl = data.blobUrl;
           saveState();
           
-          // Update preview with a small delay to ensure Blob Storage has propagated
+          // Update preview with delay to ensure Blob Storage has propagated
           setTimeout(() => {
             updatePreview();
-          }, 1000);  // 1 second delay for Blob Storage propagation
+          }, 2000);  // 2 second delay for Blob Storage propagation
+          
+          // Also do a second refresh after 4 seconds to be sure
+          setTimeout(() => {
+            updatePreview();
+          }, 4000);
           
           // Add AI response with more specific feedback
           const action = page.content ? 'updated' : 'created';

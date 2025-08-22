@@ -26,7 +26,9 @@ module.exports = async (req, res) => {
       return res.status(400).json({ error: 'Instructions and page name are required' });
     }
 
-    console.log('Generating page with instructions:', instructions);
+    console.log('=== GENERATE PAGE REQUEST ===');
+    console.log('Page Name:', pageName);
+    console.log('Instructions:', instructions);
     
     // ALWAYS check if page exists and fetch its content for context
     let existingContent = null;
@@ -161,7 +163,10 @@ Return ONLY the HTML code starting with <!DOCTYPE html> and ending with </html>.
       cacheControlMaxAge: 0
     });
     
-    console.log('Page published to:', url);
+    console.log('=== PAGE SAVED TO BLOB ===');
+    console.log('Blob URL:', url);
+    console.log('Live URL:', `https://landinger.vercel.app/${sanitizedPageName}.html`);
+    console.log('Was Update:', !!existingContent);
     
     res.status(200).json({ 
       success: true, 
