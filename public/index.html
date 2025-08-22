@@ -681,6 +681,8 @@
       const saved = localStorage.getItem('landingerState');
       if (saved) {
         state = { ...state, ...JSON.parse(saved) };
+        // Reset isGenerating flag in case it was stuck
+        state.isGenerating = false;
         renderProjects();
         renderPages();
       }
@@ -688,7 +690,10 @@
 
     // Save state
     function saveState() {
-      localStorage.setItem('landingerState', JSON.stringify(state));
+      // Don't save isGenerating flag to avoid it getting stuck
+      const stateToSave = { ...state };
+      delete stateToSave.isGenerating;
+      localStorage.setItem('landingerState', JSON.stringify(stateToSave));
     }
 
     // Initialize
@@ -719,6 +724,20 @@
       }
       
       console.log('Initialization complete');
+      
+      // Add emergency reset for stuck state
+      window.resetState = function() {
+        state.isGenerating = false;
+        document.getElementById('sendBtn').disabled = false;
+        document.getElementById('sendBtn').textContent = 'Send';
+        console.log('State reset - you can now send messages');
+      };
+      
+      // If state was stuck, reset it
+      if (state.isGenerating) {
+        console.log('Found stuck isGenerating flag, resetting...');
+        window.resetState();
+      }
     });
 
     // Load existing pages from API
