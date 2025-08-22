@@ -1,0 +1,52 @@
+const { list } = require('@vercel/blob');
+
+module.exports = async (req, res) => {
+  // Enable CORS
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+  
+  if (req.method === 'OPTIONS') {
+    res.status(200).end();
+    return;
+  }
+  
+  if (req.method !== 'GET') {
+    return res.status(405).json({ error: 'Method not allowed' });
+  }
+
+  try {
+    const pages = [];
+    
+    // List from Blob Storage
+    const { blobs } = await list({
+      prefix: 'metadata/',
+      limit: 1000
+    });
+
+    for (const blob of blobs) {
+      try {
+        const response = await fetch(blob.url);
+        const metadata = await response.json();
+        pages.push({
+          ...metadata,
+          url: metadata.pageUrl,
+          liveUrl: metadata.pageUrl // It's already live!
+        });
+      } catch (error) {
+        console.error('Error reading metadata:', error);
+      }
+    }
+    
+    // Sort by creation date (newest first)
+    pages.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+    
+    res.status(200).json({ 
+      pages,
+      mode: 'production'
+    });
+  } catch (error) {
+    console.error('Error listing pages:', error);
+    res.status(500).json({ error: 'Failed to list pages' });
+  }
+};

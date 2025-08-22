@@ -572,7 +572,7 @@
             }
 
             try {
-                const response = await fetch(`/api/delete-page/${pageName}`, {
+                const response = await fetch(`/api/delete-page?name=${pageName}`, {
                     method: 'DELETE'
                 });
 
