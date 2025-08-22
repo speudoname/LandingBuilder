@@ -72,17 +72,34 @@ Return ONLY the complete HTML code, nothing else.`;
       Return ONLY the complete HTML code, nothing else. Start with <!DOCTYPE html> and end with </html>.`;
     }
 
-    const message = await anthropic.messages.create({
-      model: 'claude-3-haiku-20240307',
-      max_tokens: 4096,
-      temperature: 0.7,
-      messages: [
-        {
-          role: 'user',
-          content: prompt
+    // Try to call Claude with retry logic for overloaded errors
+    let message;
+    let retries = 3;
+    
+    while (retries > 0) {
+      try {
+        message = await anthropic.messages.create({
+          model: 'claude-3-haiku-20240307',
+          max_tokens: 4096,
+          temperature: 0.7,
+          messages: [
+            {
+              role: 'user',
+              content: prompt
+            }
+          ]
+        });
+        break; // Success, exit retry loop
+      } catch (error) {
+        if (error.status === 529 && retries > 1) {
+          console.log(`Claude API overloaded, retrying in 2 seconds... (${retries - 1} retries left)`);
+          await new Promise(resolve => setTimeout(resolve, 2000));
+          retries--;
+        } else {
+          throw error; // Re-throw if not overloaded or no retries left
         }
-      ]
-    });
+      }
+    }
 
     const htmlContent = message.content[0].text;
     // sanitizedPageName already declared above

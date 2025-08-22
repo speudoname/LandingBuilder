@@ -1039,9 +1039,11 @@
         };
 
         console.log('Sending request with context:', context);
+        console.log('Page ID being sent:', page.id);
         console.log('Built prompt:', buildPrompt(context));
 
         // Call API to generate/update page
+        // The API will fetch existing content from Blob Storage if it exists
         const response = await fetch('/api/generate-page', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -1082,7 +1084,12 @@
         }
       } catch (error) {
         console.error('Error:', error);
-        addMessage('ai', `❌ Sorry, there was an error: ${error.message}`);
+        // Check if it's an overload error
+        if (error.message && error.message.includes('Overloaded')) {
+          addMessage('ai', `⏳ The AI is currently busy. Please try again in a few seconds.`);
+        } else {
+          addMessage('ai', `❌ Sorry, there was an error: ${error.message}`);
+        }
       } finally {
         state.isGenerating = false;
         document.getElementById('sendBtn').disabled = false;
