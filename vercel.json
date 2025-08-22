@@ -3,5 +3,19 @@
     "api/*.js": {
       "maxDuration": 60
     }
-  }
+  },
+  "rewrites": [
+    {
+      "source": "/p/:page",
+      "destination": "/api/view?page=:page"
+    },
+    {
+      "source": "/pages/:page",
+      "destination": "/api/view?page=:page"
+    },
+    {
+      "source": "/:page.html",
+      "destination": "/api/view?page=:page"
+    }
+  ]
 }

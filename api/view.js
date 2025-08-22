@@ -71,9 +71,18 @@ module.exports = async (req, res) => {
     
     const htmlContent = await response.text();
     
-    // Serve the HTML content directly as a webpage
+    // Serve the HTML content as a true HTML page
     res.setHeader('Content-Type', 'text/html; charset=utf-8');
     res.setHeader('Cache-Control', 'public, max-age=3600'); // Cache for 1 hour
+    
+    // Important headers for payment gateways
+    res.setHeader('X-Content-Type-Options', 'nosniff');
+    res.setHeader('X-Frame-Options', 'SAMEORIGIN'); // Allow your own domain to frame it
+    res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
+    
+    // Set the page origin correctly
+    res.setHeader('Origin', 'https://landinger.vercel.app');
+    
     res.status(200).send(htmlContent);
     
   } catch (error) {

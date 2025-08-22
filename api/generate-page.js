@@ -96,9 +96,9 @@ module.exports = async (req, res) => {
       success: true, 
       fileName: fileName,
       pageName: sanitizedPageName,
-      pageUrl: `/api/view?page=${sanitizedPageName}`,  // Serve from your domain
+      pageUrl: `/${sanitizedPageName}.html`,  // Clean HTML URL
       blobUrl: url,  // Keep blob URL for reference
-      liveUrl: `https://landinger.vercel.app/api/view?page=${sanitizedPageName}`,  // Full URL
+      liveUrl: `https://landinger.vercel.app/${sanitizedPageName}.html`,  // Clean HTML URL on your domain
       message: '🎉 Page published instantly! It\'s live right now on your domain!'
     });
 
