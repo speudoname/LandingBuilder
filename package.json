@@ -3,8 +3,9 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "start": "node server.js",
-    "dev": "node server.js",
+    "start": "node server-final.js",
+    "dev": "node server-final.js",
+    "start:old": "node server.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
@@ -13,6 +14,8 @@
   "description": "",
   "dependencies": {
     "@anthropic-ai/sdk": "^0.60.0",
+    "@supabase/supabase-js": "^2.56.0",
+    "@vercel/blob": "^1.1.1",
     "cors": "^2.8.5",
     "dotenv": "^17.2.1",
     "express": "^4.21.2"

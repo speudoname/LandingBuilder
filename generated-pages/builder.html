@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Courses</title>
+  <meta name="description" content="Discover the best AI courses to advance your career.">
+  <meta name="keywords" content="AI, machine learning, deep learning, courses, education">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap">
+  <style>
+    /* Reset styles */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    /* Global styles */
+    body {
+      font-family: 'Poppins', sans-serif;
+      color: #333;
+      line-height: 1.6;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 2rem;
+    }
+
+    /* Header */
+    header {
+      background-color: #0077b6;
+      color: #fff;
+      padding: 1rem 0;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    nav ul {
+      display: flex;
+      justify-content: center;
+      list-style-type: none;
+    }
+
+    nav ul li {
+      margin: 0 1rem;
+    }
+
+    nav a {
+      color: #fff;
+      text-decoration: none;
+      font-weight: 600;
+      transition: color 0.3s ease;
+    }
+
+    nav a:hover {
+      color: #e6e6e6;
+    }
+
+    /* Hero section */
+    .hero {
+      background-image: linear-gradient(to right, #0077b6, #00a8e8);
+      color: #fff;
+      padding: 4rem 0;
+      text-align: center;
+    }
+
+    .hero h1 {
+      font-size: 3rem;
+      margin-bottom: 1rem;
+    }
+
+    .hero p {
+      font-size: 1.5rem;
+      margin-bottom: 2rem;
+    }
+
+    .cta-button {
+      display: inline-block;
+      background-color: #fff;
+      color: #0077b6;
+      padding: 1rem 2rem;
+      border-radius: 4px;
+      text-decoration: none;
+      font-weight: 600;
+      transition: background-color 0.3s ease, color 0.3s ease;
+    }
+
+    .cta-button:hover {
+      background-color: #0077b6;
+      color: #fff;
+    }
+
+    /* Course section */
+    .courses {
+      padding: 4rem 0;
+    }
+
+    .courses h2 {
+      text-align: center;
+      font-size: 2.5rem;
+      margin-bottom: 2rem;
+    }
+
+    .course-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      grid-gap: 2rem;
+    }
+
+    .course-card {
+      background-color: #f5f5f5;
+      border-radius: 4px;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+      overflow: hidden;
+      transition: transform 0.3s ease;
+    }
+
+    .course-card:hover {
+      transform: translateY(-5px);
+    }
+
+    .course-card img {
+      width: 100%;
+      height: 200px;
+      object-fit: cover;
+    }
+
+    .course-content {
+      padding: 1.5rem;
+    }
+
+    .course-content h3 {
+      font-size: 1.5rem;
+      margin-bottom: 1rem;
+    }
+
+    .course-content p {
+      margin-bottom: 1.5rem;
+    }
+
+    .enroll-button {
+      display: inline-block;
+      background-color: #0077b6;
+      color: #fff;
+      padding: 0.75rem 1.5rem;
+      border-radius: 4px;
+      text-decoration: none;
+      font-weight: 600;
+      transition: background-color 0.3s ease;
+    }
+
+    .enroll-button:hover {
+      background-color: #00a8e8;
+    }
+
+    /* Footer */
+    footer {
+      background-color: #0077b6;
+      color: #fff;
+      padding: 2rem 0;
+      text-align: center;
+    }
+
+    footer p {
+      font-size: 0.9rem;
+    }
+
+    /* Smooth scrolling */
+    html {
+      scroll-behavior: smooth;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <nav>
+      <ul>
+        <li><a href="#hero">Home</a></li>
+        <li><a href="#courses">Courses</a></li>
+        <li><a href="#contact">Contact</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <main>
+    <section class="hero" id="hero">
+      <h1>Unlock Your AI Potential</h1>
+      <p>Explore the best AI courses to advance your career.</p>
+      <a href="#courses" class="cta-button">Get Started</a>
+    </section>
+
+    <section class="courses" id="courses">
+      <h2>Featured AI Courses</h2>
+      <div class="course-grid">
+        <div class="course-card">
+          <img src="https://via.placeholder.com/300x200" alt="Course Image">
+          <div class="course-content">
+            <h3>Introduction to Machine Learning</h3>
+            <p>Learn the fundamentals of machine learning and build your first models.</p>
+            <a href="#" class="enroll-button">Enroll Now</a>
+          </div>
+        </div>
+        <div class="course-card">
+          <img src="https://via.placeholder.com/300x200" alt="Course Image">
+          <div class="course-content">
+            <h3>Deep Learning with TensorFlow</h3>
+            <p>Dive into the world of deep learning and build advanced neural networks.</p>
+            <a href="#" class="enroll-button">Enroll Now</a>
+          </div>
+        </div>
+        <div class="course-card">
+          <img src="https://via.placeholder.com/300x200" alt="Course Image">
+          <div class="course-content">
+            <h3>Natural Language Processing</h3>
+            <p>Explore techniques for processing and understanding human language.</p>
+            <a href="#" class="enroll-button">Enroll Now</a>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer id="contact">
+    <p>&copy; 2023 AI Courses. All rights reserved.</p>
+  </footer>
+
+  <script>
+    // Smooth scrolling
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+      anchor.addEventListener('click', function (e) {
+        e.preventDefault();
+        document.querySelector(this.getAttribute('href')).scrollIntoView({
+          behavior: 'smooth'
+        });
+      });
+    });
+  </script>
+</body>
+</html>
