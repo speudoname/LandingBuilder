@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Landing Page Builder</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            color: white;
+            margin-bottom: 40px;
+        }
+
+        header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+
+        header p {
+            font-size: 1.1rem;
+            opacity: 0.95;
+        }
+
+        .builder-card {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+
+        input[type="text"]:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        textarea {
+            width: 100%;
+            min-height: 150px;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 16px;
+            resize: vertical;
+            font-family: inherit;
+            transition: border-color 0.3s;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .btn {
+            padding: 12px 30px;
+            font-size: 16px;
+            font-weight: 600;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .generated-pages {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        }
+
+        .generated-pages h2 {
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        .pages-list {
+            display: grid;
+            gap: 15px;
+        }
+
+        .page-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            transition: background 0.3s;
+        }
+
+        .page-item:hover {
+            background: #e9ecef;
+        }
+
+        .page-info {
+            flex: 1;
+        }
+
+        .page-name {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .page-date {
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        .page-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn-small {
+            padding: 8px 16px;
+            font-size: 14px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-view {
+            background: #28a745;
+            color: white;
+        }
+
+        .btn-view:hover {
+            background: #218838;
+        }
+
+        .btn-delete {
+            background: #dc3545;
+            color: white;
+        }
+
+        .btn-delete:hover {
+            background: #c82333;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+            color: #667eea;
+        }
+
+        .loading.active {
+            display: block;
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 40px;
+            height: 40px;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .message {
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .message.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+            display: block;
+        }
+
+        .message.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+            display: block;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: #999;
+        }
+
+        .empty-state svg {
+            width: 100px;
+            height: 100px;
+            margin-bottom: 20px;
+            opacity: 0.3;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🚀 AI Landing Page Builder</h1>
+            <p>Describe your landing page and let AI create it for you!</p>
+        </header>
+
+        <div class="builder-card">
+            <div id="message" class="message"></div>
+            
+            <div class="form-group">
+                <label for="pageName">Page Name</label>
+                <input type="text" id="pageName" placeholder="e.g., my-awesome-landing-page">
+            </div>
+
+            <div class="form-group">
+                <label for="instructions">Describe Your Landing Page</label>
+                <textarea id="instructions" placeholder="Example: Create a modern landing page for a SaaS product called 'TaskMaster'. Include a hero section with a catchy headline, features section with 3 key benefits, pricing table with 3 tiers, testimonials, and a call-to-action footer. Use a blue and white color scheme with modern design."></textarea>
+            </div>
+
+            <button class="btn btn-primary" onclick="generatePage()">
+                <span>✨</span>
+                <span>Build New Landing Page</span>
+            </button>
+
+            <div id="loading" class="loading">
+                <div class="spinner"></div>
+                <p>Creating your landing page... This may take a moment.</p>
+            </div>
+        </div>
+
+        <div class="generated-pages">
+            <h2>📄 Your Generated Pages</h2>
+            <div id="pagesList" class="pages-list">
+                <div class="empty-state">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                        <polyline points="14 2 14 8 20 8"></polyline>
+                        <line x1="16" y1="13" x2="8" y2="13"></line>
+                        <line x1="16" y1="17" x2="8" y2="17"></line>
+                        <polyline points="10 9 9 9 8 9"></polyline>
+                    </svg>
+                    <p>No pages generated yet. Create your first landing page above!</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        async function generatePage() {
+            const pageName = document.getElementById('pageName').value.trim();
+            const instructions = document.getElementById('instructions').value.trim();
+            const button = document.querySelector('.btn-primary');
+            const loading = document.getElementById('loading');
+            const message = document.getElementById('message');
+
+            if (!pageName || !instructions) {
+                showMessage('Please provide both a page name and instructions.', 'error');
+                return;
+            }
+
+            button.disabled = true;
+            loading.classList.add('active');
+            message.className = 'message';
+
+            try {
+                const response = await fetch('/api/generate-page', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ pageName, instructions })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    showMessage(`✅ ${data.message} <a href="${data.url}" target="_blank">View Page</a>`, 'success');
+                    document.getElementById('pageName').value = '';
+                    document.getElementById('instructions').value = '';
+                    loadPages();
+                } else {
+                    showMessage(`❌ ${data.error}: ${data.details || ''}`, 'error');
+                }
+            } catch (error) {
+                showMessage(`❌ Error: ${error.message}`, 'error');
+            } finally {
+                button.disabled = false;
+                loading.classList.remove('active');
+            }
+        }
+
+        async function loadPages() {
+            try {
+                const response = await fetch('/api/list-pages');
+                const data = await response.json();
+                const pagesList = document.getElementById('pagesList');
+
+                if (data.pages && data.pages.length > 0) {
+                    pagesList.innerHTML = data.pages.map(page => `
+                        <div class="page-item">
+                            <div class="page-info">
+                                <div class="page-name">${page.name}</div>
+                                <div class="page-date">Created: ${new Date(page.created).toLocaleString()}</div>
+                            </div>
+                            <div class="page-actions">
+                                <button class="btn-small btn-view" onclick="window.open('${page.url}', '_blank')">View</button>
+                                <button class="btn-small btn-delete" onclick="deletePage('${page.name}')">Delete</button>
+                            </div>
+                        </div>
+                    `).join('');
+                } else {
+                    pagesList.innerHTML = `
+                        <div class="empty-state">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                                <polyline points="14 2 14 8 20 8"></polyline>
+                                <line x1="16" y1="13" x2="8" y2="13"></line>
+                                <line x1="16" y1="17" x2="8" y2="17"></line>
+                                <polyline points="10 9 9 9 8 9"></polyline>
+                            </svg>
+                            <p>No pages generated yet. Create your first landing page above!</p>
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                console.error('Error loading pages:', error);
+            }
+        }
+
+        async function deletePage(fileName) {
+            if (!confirm(`Are you sure you want to delete ${fileName}?`)) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`/api/delete-page/${fileName}`, {
+                    method: 'DELETE'
+                });
+
+                if (response.ok) {
+                    showMessage('Page deleted successfully', 'success');
+                    loadPages();
+                } else {
+                    showMessage('Failed to delete page', 'error');
+                }
+            } catch (error) {
+                showMessage(`Error deleting page: ${error.message}`, 'error');
+            }
+        }
+
+        function showMessage(text, type) {
+            const message = document.getElementById('message');
+            message.innerHTML = text;
+            message.className = `message ${type}`;
+            
+            setTimeout(() => {
+                if (type === 'success') {
+                    message.className = 'message';
+                }
+            }, 5000);
+        }
+
+        document.addEventListener('DOMContentLoaded', loadPages);
+    </script>
+</body>
+</html>
