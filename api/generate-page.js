@@ -28,7 +28,7 @@ module.exports = async (req, res) => {
 
     console.log('Generating page with instructions:', instructions);
     
-    // Check if page already exists and fetch its content
+    // ALWAYS check if page exists and fetch its content for context
     let existingContent = null;
     const sanitizedPageName = pageName.replace(/[^a-z0-9-_]/gi, '_').toLowerCase();
     const blobUrl = `https://nvldrzv6kcjoahys.public.blob.vercel-storage.com/pages/${sanitizedPageName}.html`;
@@ -37,7 +37,7 @@ module.exports = async (req, res) => {
       const existingResponse = await fetch(blobUrl);
       if (existingResponse.ok) {
         existingContent = await existingResponse.text();
-        console.log('Found existing page, will update it');
+        console.log('Found existing page content, will update it with awareness of current state');
       }
     } catch (e) {
       console.log('No existing page found, will create new');
@@ -46,30 +46,33 @@ module.exports = async (req, res) => {
     // Build appropriate prompt based on whether page exists
     let prompt;
     if (existingContent) {
-      // For updates, send the current HTML and ask for modifications
-      prompt = `You are an expert web developer. Update this existing HTML page with the following changes: ${instructions}
+      // For updates, be very clear about modifying the EXISTING page
+      prompt = `You are working on an existing HTML page. The user wants to make the following change: "${instructions}"
 
-Current HTML to modify:
+Here is the current HTML page that needs to be modified:
+
 ${existingContent}
 
-Important: Return the complete updated HTML page with the requested changes applied. Preserve the existing structure and content while making the requested modifications.
+IMPORTANT INSTRUCTIONS:
+1. Apply ONLY the requested change: "${instructions}"
+2. Keep everything else exactly as it is
+3. Do not add explanatory text
+4. Do not say "Here is the updated HTML" or similar
+5. Return ONLY the complete modified HTML starting with <!DOCTYPE html> and ending with </html>
 
-Return ONLY the complete HTML code, nothing else.`;
+Apply the change and return the complete HTML.`;
     } else {
       // For new pages, create from scratch
-      prompt = `You are an expert web developer. Create a complete, modern, responsive landing page based on these instructions: ${instructions}
-      
-      Requirements:
-      - Create a single HTML file with embedded CSS and JavaScript
-      - Make it fully responsive and mobile-friendly
-      - Use modern CSS (flexbox, grid, animations)
-      - Include semantic HTML5 elements
-      - Add smooth scrolling and interactive elements where appropriate
-      - Use a professional color scheme and typography
-      - Include all necessary meta tags for SEO
-      - Add viewport meta tag for mobile responsiveness
-      
-      Return ONLY the complete HTML code, nothing else. Start with <!DOCTYPE html> and end with </html>.`;
+      prompt = `Create a complete HTML page with this requirement: ${instructions}
+
+Requirements:
+- Single HTML file with embedded CSS and JavaScript
+- Responsive and mobile-friendly
+- Modern design with good typography
+- Professional appearance
+- No explanatory text - just the HTML
+
+Return ONLY the HTML code starting with <!DOCTYPE html> and ending with </html>.`;
     }
 
     // Try to call Claude with retry logic for overloaded errors
@@ -101,7 +104,21 @@ Return ONLY the complete HTML code, nothing else.`;
       }
     }
 
-    const htmlContent = message.content[0].text;
+    // Extract just the HTML from Claude's response
+    let htmlContent = message.content[0].text;
+    
+    // Remove any explanatory text before <!DOCTYPE html>
+    const docTypeIndex = htmlContent.indexOf('<!DOCTYPE html>');
+    if (docTypeIndex > 0) {
+      htmlContent = htmlContent.substring(docTypeIndex);
+      console.log('Extracted HTML from response, removed explanatory text');
+    }
+    
+    // Also remove any text after </html>
+    const htmlEndIndex = htmlContent.lastIndexOf('</html>');
+    if (htmlEndIndex > 0) {
+      htmlContent = htmlContent.substring(0, htmlEndIndex + 7);
+    }
     // sanitizedPageName already declared above
     const fileName = `${sanitizedPageName}.html`;
     
