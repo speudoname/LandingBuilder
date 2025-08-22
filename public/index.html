@@ -1,617 +1,1062 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Landing Page Builder - Instant Publishing</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Landinger - AI Page Builder</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
 
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            padding: 20px;
-        }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #f5f5f5;
+      height: 100vh;
+      overflow: hidden;
+    }
 
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-        }
+    .app-container {
+      display: flex;
+      height: 100vh;
+    }
 
-        header {
-            text-align: center;
-            color: white;
-            margin-bottom: 40px;
-        }
+    /* Left Panel - Chat Interface */
+    .chat-panel {
+      width: 400px;
+      background: white;
+      border-right: 1px solid #e0e0e0;
+      display: flex;
+      flex-direction: column;
+      transition: width 0.3s ease;
+    }
 
-        header h1 {
-            font-size: 2.5rem;
-            margin-bottom: 10px;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
-        }
+    .chat-panel.collapsed {
+      width: 60px;
+    }
 
-        header p {
-            font-size: 1.1rem;
-            opacity: 0.95;
-        }
+    /* Header */
+    .chat-header {
+      padding: 20px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
 
-        .instant-badge {
-            display: inline-block;
-            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-            color: white;
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-size: 0.75rem;
-            margin-left: 10px;
-            font-weight: 600;
-            animation: pulse 2s infinite;
-        }
+    .chat-header h1 {
+      font-size: 1.2rem;
+      font-weight: 600;
+    }
 
-        @keyframes pulse {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.05); }
-        }
+    .toggle-panel {
+      background: rgba(255,255,255,0.2);
+      border: none;
+      color: white;
+      padding: 8px;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
 
-        .builder-card {
-            background: white;
-            border-radius: 20px;
-            padding: 30px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
-            margin-bottom: 30px;
-        }
+    .toggle-panel:hover {
+      background: rgba(255,255,255,0.3);
+    }
 
-        .form-group {
-            margin-bottom: 20px;
-        }
+    /* Project Tabs */
+    .project-tabs {
+      background: #f8f9fa;
+      padding: 10px;
+      border-bottom: 1px solid #e0e0e0;
+      display: flex;
+      gap: 10px;
+      overflow-x: auto;
+    }
 
-        label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: 600;
-            color: #333;
-        }
+    .project-tab {
+      padding: 8px 15px;
+      background: white;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 0.9rem;
+      white-space: nowrap;
+      transition: all 0.3s;
+    }
 
-        input[type="text"] {
-            width: 100%;
-            padding: 12px;
-            border: 2px solid #e0e0e0;
-            border-radius: 10px;
-            font-size: 16px;
-            transition: border-color 0.3s;
-        }
+    .project-tab.active {
+      background: #667eea;
+      color: white;
+      border-color: #667eea;
+    }
 
-        input[type="text"]:focus {
-            outline: none;
-            border-color: #667eea;
-        }
+    .project-tab:hover:not(.active) {
+      background: #f0f0f0;
+    }
 
-        textarea {
-            width: 100%;
-            min-height: 150px;
-            padding: 12px;
-            border: 2px solid #e0e0e0;
-            border-radius: 10px;
-            font-size: 16px;
-            resize: vertical;
-            font-family: inherit;
-            transition: border-color 0.3s;
-        }
+    .new-project-btn {
+      padding: 8px 15px;
+      background: transparent;
+      border: 2px dashed #667eea;
+      color: #667eea;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 0.9rem;
+      transition: all 0.3s;
+    }
 
-        textarea:focus {
-            outline: none;
-            border-color: #667eea;
-        }
+    .new-project-btn:hover {
+      background: #667eea;
+      color: white;
+    }
 
-        .btn {
-            padding: 12px 30px;
-            font-size: 16px;
-            font-weight: 600;
-            border: none;
-            border-radius: 10px;
-            cursor: pointer;
-            transition: all 0.3s;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-        }
+    /* Page Selector */
+    .page-selector {
+      padding: 15px;
+      background: #fafafa;
+      border-bottom: 1px solid #e0e0e0;
+    }
 
-        .btn-primary {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-        }
+    .page-select {
+      width: 100%;
+      padding: 8px;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      font-size: 0.9rem;
+      background: white;
+    }
 
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
-        }
+    .page-actions {
+      display: flex;
+      gap: 10px;
+      margin-top: 10px;
+    }
 
-        .btn-primary:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-            transform: none;
-        }
+    .page-action-btn {
+      flex: 1;
+      padding: 8px;
+      background: white;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 0.85rem;
+      transition: all 0.3s;
+    }
 
-        .generated-pages {
-            background: white;
-            border-radius: 20px;
-            padding: 30px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
-        }
+    .page-action-btn:hover {
+      background: #667eea;
+      color: white;
+      border-color: #667eea;
+    }
 
-        .generated-pages h2 {
-            margin-bottom: 20px;
-            color: #333;
-        }
+    /* Chat Messages */
+    .chat-messages {
+      flex: 1;
+      overflow-y: auto;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
 
-        .pages-list {
-            display: grid;
-            gap: 15px;
-        }
+    .message {
+      display: flex;
+      gap: 10px;
+      animation: slideIn 0.3s ease;
+    }
 
-        .page-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 20px;
-            background: linear-gradient(135deg, #667eea08 0%, #764ba208 100%);
-            border-radius: 15px;
-            transition: all 0.3s;
-            border: 2px solid #667eea20;
-        }
+    @keyframes slideIn {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
 
-        .page-item:hover {
-            transform: translateX(5px);
-            border-color: #667eea40;
-            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.1);
-        }
+    .message.user {
+      flex-direction: row-reverse;
+    }
 
-        .page-info {
-            flex: 1;
-        }
+    .message-content {
+      max-width: 80%;
+      padding: 12px 16px;
+      border-radius: 15px;
+      font-size: 0.95rem;
+      line-height: 1.5;
+    }
 
-        .page-name {
-            font-weight: 600;
-            color: #333;
-            margin-bottom: 8px;
-            font-size: 1.1rem;
-        }
+    .message.ai .message-content {
+      background: #f0f0f0;
+      color: #333;
+    }
 
-        .page-url {
-            font-size: 0.85rem;
-            color: #666;
-            word-break: break-all;
-            margin-bottom: 5px;
-        }
+    .message.user .message-content {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+    }
 
-        .page-url a {
-            color: #667eea;
-            text-decoration: none;
-        }
+    .message-avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.8rem;
+      font-weight: bold;
+    }
 
-        .page-url a:hover {
-            text-decoration: underline;
-        }
+    .message.ai .message-avatar {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+    }
 
-        .page-date {
-            font-size: 0.85rem;
-            color: #999;
-        }
+    .message.user .message-avatar {
+      background: #e0e0e0;
+      color: #666;
+    }
 
-        .live-indicator {
-            display: inline-flex;
-            align-items: center;
-            gap: 5px;
-            background: #28a745;
-            color: white;
-            padding: 3px 10px;
-            border-radius: 20px;
-            font-size: 0.75rem;
-            font-weight: 600;
-            margin-left: 10px;
-        }
+    /* Chat Input */
+    .chat-input-container {
+      padding: 20px;
+      border-top: 1px solid #e0e0e0;
+      background: white;
+    }
 
-        .live-dot {
-            width: 6px;
-            height: 6px;
-            background: white;
-            border-radius: 50%;
-            animation: blink 1.5s infinite;
-        }
+    .chat-input-wrapper {
+      display: flex;
+      gap: 10px;
+    }
 
-        @keyframes blink {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.3; }
-        }
+    .chat-input {
+      flex: 1;
+      padding: 12px;
+      border: 1px solid #ddd;
+      border-radius: 25px;
+      font-size: 0.95rem;
+      outline: none;
+      transition: border-color 0.3s;
+    }
 
-        .page-actions {
-            display: flex;
-            gap: 10px;
-        }
+    .chat-input:focus {
+      border-color: #667eea;
+    }
 
-        .btn-small {
-            padding: 8px 16px;
-            font-size: 14px;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
+    .send-btn {
+      padding: 12px 20px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      border-radius: 25px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: transform 0.3s;
+    }
 
-        .btn-view {
-            background: #17a2b8;
-            color: white;
-        }
+    .send-btn:hover {
+      transform: translateY(-2px);
+    }
 
-        .btn-view:hover {
-            background: #138496;
-        }
+    .send-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
 
-        .btn-copy {
-            background: #6c757d;
-            color: white;
-        }
+    /* Right Panel - Preview */
+    .preview-panel {
+      flex: 1;
+      background: white;
+      display: flex;
+      flex-direction: column;
+    }
 
-        .btn-copy:hover {
-            background: #5a6268;
-        }
+    .preview-header {
+      padding: 15px 20px;
+      background: white;
+      border-bottom: 1px solid #e0e0e0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
 
-        .btn-delete {
-            background: #dc3545;
-            color: white;
-        }
+    .preview-url {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex: 1;
+      max-width: 600px;
+    }
 
-        .btn-delete:hover {
-            background: #c82333;
-        }
+    .url-display {
+      flex: 1;
+      padding: 8px 12px;
+      background: #f5f5f5;
+      border-radius: 5px;
+      font-size: 0.9rem;
+      color: #666;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
 
-        .loading {
-            display: none;
-            text-align: center;
-            padding: 20px;
-            color: #667eea;
-        }
+    .preview-actions {
+      display: flex;
+      gap: 10px;
+    }
 
-        .loading.active {
-            display: block;
-        }
+    .preview-btn {
+      padding: 8px 15px;
+      background: white;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 0.85rem;
+      transition: all 0.3s;
+    }
 
-        .spinner {
-            display: inline-block;
-            width: 40px;
-            height: 40px;
-            border: 4px solid #f3f3f3;
-            border-top: 4px solid #667eea;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-        }
+    .preview-btn:hover {
+      background: #f0f0f0;
+    }
 
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
+    .device-selector {
+      display: flex;
+      gap: 5px;
+      background: #f5f5f5;
+      padding: 4px;
+      border-radius: 5px;
+    }
 
-        .message {
-            padding: 15px;
-            border-radius: 10px;
-            margin-bottom: 20px;
-            display: none;
-        }
+    .device-btn {
+      padding: 6px 12px;
+      background: transparent;
+      border: none;
+      border-radius: 3px;
+      cursor: pointer;
+      font-size: 0.85rem;
+      transition: all 0.3s;
+    }
 
-        .message.success {
-            background: #d4edda;
-            color: #155724;
-            border: 1px solid #c3e6cb;
-            display: block;
-        }
+    .device-btn.active {
+      background: white;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
 
-        .message.error {
-            background: #f8d7da;
-            color: #721c24;
-            border: 1px solid #f5c6cb;
-            display: block;
-        }
+    .preview-frame-container {
+      flex: 1;
+      padding: 20px;
+      background: #f5f5f5;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: auto;
+    }
 
-        .message.info {
-            background: #d1ecf1;
-            color: #0c5460;
-            border: 1px solid #bee5eb;
-            display: block;
-        }
+    .preview-frame-wrapper {
+      background: white;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+      border-radius: 10px;
+      overflow: hidden;
+      transition: all 0.3s ease;
+    }
 
-        .empty-state {
-            text-align: center;
-            padding: 40px;
-            color: #999;
-        }
+    .preview-frame-wrapper.desktop {
+      width: 100%;
+      height: 100%;
+    }
 
-        .empty-state svg {
-            width: 100px;
-            height: 100px;
-            margin-bottom: 20px;
-            opacity: 0.3;
-        }
+    .preview-frame-wrapper.tablet {
+      width: 768px;
+      height: 1024px;
+    }
 
-        .success-animation {
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: white;
-            padding: 40px;
-            border-radius: 20px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-            z-index: 1000;
-            display: none;
-            text-align: center;
-        }
+    .preview-frame-wrapper.mobile {
+      width: 375px;
+      height: 667px;
+    }
 
-        .success-animation.show {
-            display: block;
-            animation: popIn 0.5s ease-out;
-        }
+    .preview-frame {
+      width: 100%;
+      height: 100%;
+      border: none;
+    }
 
-        @keyframes popIn {
-            0% { transform: translate(-50%, -50%) scale(0.5); opacity: 0; }
-            100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
-        }
+    .empty-preview {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+      color: #999;
+      text-align: center;
+      padding: 40px;
+    }
 
-        .success-icon {
-            font-size: 4rem;
-            margin-bottom: 20px;
-        }
+    .empty-preview svg {
+      width: 100px;
+      height: 100px;
+      margin-bottom: 20px;
+      opacity: 0.3;
+    }
 
-        .mode-indicator {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            padding: 10px 20px;
-            background: rgba(0,0,0,0.8);
-            color: white;
-            border-radius: 20px;
-            font-size: 0.85rem;
-        }
+    .empty-preview h3 {
+      font-size: 1.2rem;
+      margin-bottom: 10px;
+      color: #666;
+    }
 
-        .mode-indicator.production {
-            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
-        }
+    .empty-preview p {
+      color: #999;
+      line-height: 1.6;
+    }
 
-        .mode-indicator.local {
-            background: linear-gradient(135deg, #ffc107 0%, #ff9800 100%);
-        }
-    </style>
+    /* Loading Spinner */
+    .loading {
+      display: inline-block;
+      width: 20px;
+      height: 20px;
+      border: 3px solid #f3f3f3;
+      border-top: 3px solid #667eea;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    /* Modal */
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0,0,0,0.5);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .modal.active {
+      display: flex;
+    }
+
+    .modal-content {
+      background: white;
+      padding: 30px;
+      border-radius: 10px;
+      max-width: 500px;
+      width: 90%;
+    }
+
+    .modal-header {
+      margin-bottom: 20px;
+    }
+
+    .modal-header h2 {
+      color: #333;
+    }
+
+    .modal-body {
+      margin-bottom: 20px;
+    }
+
+    .modal-input {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      margin-bottom: 10px;
+      font-size: 0.95rem;
+    }
+
+    .modal-select {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      margin-bottom: 10px;
+      font-size: 0.95rem;
+      background: white;
+    }
+
+    .modal-actions {
+      display: flex;
+      gap: 10px;
+      justify-content: flex-end;
+    }
+
+    .modal-btn {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: all 0.3s;
+    }
+
+    .modal-btn.primary {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+    }
+
+    .modal-btn.secondary {
+      background: #f0f0f0;
+      color: #666;
+    }
+
+    .modal-btn:hover {
+      transform: translateY(-2px);
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .chat-panel {
+        width: 100%;
+      }
+      
+      .preview-panel {
+        display: none;
+      }
+    }
+  </style>
 </head>
 <body>
-    <div class="container">
-        <header>
-            <h1>🚀 AI Landing Page Builder <span class="instant-badge">INSTANT</span></h1>
-            <p>Generate and publish landing pages instantly - no waiting, no git commits!</p>
-        </header>
+  <div class="app-container">
+    <!-- Left Panel - Chat Interface -->
+    <div class="chat-panel" id="chatPanel">
+      <div class="chat-header">
+        <h1>🚀 Landinger</h1>
+        <button class="toggle-panel" onclick="togglePanel()">☰</button>
+      </div>
 
-        <div class="builder-card">
-            <div id="message" class="message"></div>
-            
-            <div class="form-group">
-                <label for="pageName">Page Name</label>
-                <input type="text" id="pageName" placeholder="e.g., my-awesome-landing-page">
-            </div>
+      <!-- Project Tabs -->
+      <div class="project-tabs" id="projectTabs">
+        <button class="new-project-btn" onclick="showNewProjectModal()">+ New Project</button>
+      </div>
 
-            <div class="form-group">
-                <label for="instructions">Describe Your Landing Page</label>
-                <textarea id="instructions" placeholder="Example: Create a modern landing page for a SaaS product called 'TaskMaster'. Include a hero section with a catchy headline, features section with 3 key benefits, pricing table with 3 tiers, testimonials, and a call-to-action footer. Use a blue and white color scheme with modern design."></textarea>
-            </div>
-
-            <button class="btn btn-primary" onclick="generatePage()">
-                <span>⚡</span>
-                <span>Generate & Publish Instantly</span>
-            </button>
-
-            <div id="loading" class="loading">
-                <div class="spinner"></div>
-                <p>Creating your landing page...</p>
-            </div>
+      <!-- Page Selector -->
+      <div class="page-selector">
+        <select class="page-select" id="pageSelect" onchange="switchPage()">
+          <option value="">Select a page...</option>
+        </select>
+        <div class="page-actions">
+          <button class="page-action-btn" onclick="showNewPageModal()">+ Add Page</button>
+          <button class="page-action-btn" onclick="linkPages()">🔗 Link Pages</button>
         </div>
+      </div>
 
-        <div class="generated-pages">
-            <h2>⚡ Your Live Pages</h2>
-            <div id="pagesList" class="pages-list">
-                <div class="empty-state">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-                        <polyline points="14 2 14 8 20 8"></polyline>
-                        <line x1="16" y1="13" x2="8" y2="13"></line>
-                        <line x1="16" y1="17" x2="8" y2="17"></line>
-                        <polyline points="10 9 9 9 8 9"></polyline>
-                    </svg>
-                    <p>No pages created yet. Generate your first landing page above!</p>
-                    <p style="margin-top: 10px; font-size: 0.9rem; color: #666;">Pages publish instantly and are accessible immediately!</p>
-                </div>
-            </div>
+      <!-- Chat Messages -->
+      <div class="chat-messages" id="chatMessages">
+        <div class="message ai">
+          <div class="message-avatar">AI</div>
+          <div class="message-content">
+            Welcome to Landinger! 👋<br><br>
+            Start by creating a new project, then tell me what kind of page you want to build. You can create multiple pages and link them together to build complete funnels.
+          </div>
         </div>
+      </div>
+
+      <!-- Chat Input -->
+      <div class="chat-input-container">
+        <div class="chat-input-wrapper">
+          <input 
+            type="text" 
+            class="chat-input" 
+            id="chatInput" 
+            placeholder="Describe what you want to build or change..."
+            onkeypress="handleKeyPress(event)"
+          >
+          <button class="send-btn" id="sendBtn" onclick="sendMessage()">Send</button>
+        </div>
+      </div>
     </div>
 
-    <div class="success-animation" id="successAnimation">
-        <div class="success-icon">🎉</div>
-        <h2>Page Published Instantly!</h2>
-        <p>Your page is live right now!</p>
+    <!-- Right Panel - Preview -->
+    <div class="preview-panel">
+      <div class="preview-header">
+        <div class="preview-url">
+          <span>🌐</span>
+          <div class="url-display" id="previewUrl">No page loaded</div>
+        </div>
+        <div class="preview-actions">
+          <div class="device-selector">
+            <button class="device-btn active" onclick="setDevice('desktop')">💻 Desktop</button>
+            <button class="device-btn" onclick="setDevice('tablet')">📱 Tablet</button>
+            <button class="device-btn" onclick="setDevice('mobile')">📲 Mobile</button>
+          </div>
+          <button class="preview-btn" onclick="refreshPreview()">🔄 Refresh</button>
+          <button class="preview-btn" onclick="openInNewTab()">↗️ Open</button>
+          <button class="preview-btn" onclick="publishPage()">🚀 Publish</button>
+        </div>
+      </div>
+      <div class="preview-frame-container">
+        <div class="preview-frame-wrapper desktop" id="previewWrapper">
+          <div class="empty-preview" id="emptyPreview">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+              <line x1="9" y1="9" x2="15" y2="9"></line>
+              <line x1="9" y1="13" x2="15" y2="13"></line>
+              <line x1="9" y1="17" x2="10" y2="17"></line>
+            </svg>
+            <h3>No Preview Available</h3>
+            <p>Start a conversation to create or edit a page.<br>Your changes will appear here in real-time.</p>
+          </div>
+          <iframe class="preview-frame" id="previewFrame" style="display: none;"></iframe>
+        </div>
+      </div>
     </div>
+  </div>
 
-    <div class="mode-indicator" id="modeIndicator">
-        Checking mode...
+  <!-- New Project Modal -->
+  <div class="modal" id="newProjectModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>Create New Project</h2>
+      </div>
+      <div class="modal-body">
+        <input type="text" class="modal-input" id="projectName" placeholder="Project name (e.g., My Product Launch)">
+        <select class="modal-select" id="projectType">
+          <option value="single">Single Page</option>
+          <option value="funnel">Sales Funnel</option>
+          <option value="website">Multi-page Website</option>
+        </select>
+      </div>
+      <div class="modal-actions">
+        <button class="modal-btn secondary" onclick="closeModal('newProjectModal')">Cancel</button>
+        <button class="modal-btn primary" onclick="createProject()">Create Project</button>
+      </div>
     </div>
+  </div>
 
-    <script>
-        // Check server mode on load
-        async function checkMode() {
-            try {
-                const response = await fetch('/api/health');
-                const data = await response.json();
-                const indicator = document.getElementById('modeIndicator');
-                
-                if (data.blobConfigured) {
-                    indicator.className = 'mode-indicator production';
-                    indicator.textContent = '🌍 Production Mode - Instant Publishing';
-                } else {
-                    indicator.className = 'mode-indicator local';
-                    indicator.textContent = '💻 Local Mode - Configure Blob for Cloud';
-                }
-            } catch (error) {
-                console.error('Error checking mode:', error);
-            }
-        }
+  <!-- New Page Modal -->
+  <div class="modal" id="newPageModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>Add New Page</h2>
+      </div>
+      <div class="modal-body">
+        <input type="text" class="modal-input" id="pageName" placeholder="Page name (e.g., Thank You)">
+        <select class="modal-select" id="pageType">
+          <option value="landing">Landing Page</option>
+          <option value="thankyou">Thank You Page</option>
+          <option value="order">Order Form</option>
+          <option value="upsell">Upsell Page</option>
+          <option value="downsell">Downsell Page</option>
+          <option value="custom">Custom Page</option>
+        </select>
+      </div>
+      <div class="modal-actions">
+        <button class="modal-btn secondary" onclick="closeModal('newPageModal')">Cancel</button>
+        <button class="modal-btn primary" onclick="createPage()">Create Page</button>
+      </div>
+    </div>
+  </div>
 
-        async function generatePage() {
-            const pageName = document.getElementById('pageName').value.trim();
-            const instructions = document.getElementById('instructions').value.trim();
-            const button = document.querySelector('.btn-primary');
-            const loading = document.getElementById('loading');
-            const message = document.getElementById('message');
+  <script>
+    // State Management
+    let state = {
+      projects: [],
+      currentProject: null,
+      currentPage: null,
+      chatHistory: {},
+      device: 'desktop',
+      isGenerating: false
+    };
 
-            if (!pageName || !instructions) {
-                showMessage('Please provide both a page name and instructions.', 'error');
-                return;
-            }
+    // Load saved state
+    function loadState() {
+      const saved = localStorage.getItem('landingerState');
+      if (saved) {
+        state = { ...state, ...JSON.parse(saved) };
+        renderProjects();
+        renderPages();
+      }
+    }
 
-            button.disabled = true;
-            loading.classList.add('active');
-            message.className = 'message';
+    // Save state
+    function saveState() {
+      localStorage.setItem('landingerState', JSON.stringify(state));
+    }
 
-            try {
-                const response = await fetch('/api/generate-page', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ pageName, instructions })
-                });
+    // Initialize
+    document.addEventListener('DOMContentLoaded', () => {
+      loadState();
+      loadExistingPages();
+    });
 
-                const data = await response.json();
-
-                if (response.ok) {
-                    showMessage(`✅ ${data.message}`, 'success');
-                    
-                    if (data.liveUrl) {
-                        // Show success animation for instant publishing
-                        const successAnim = document.getElementById('successAnimation');
-                        successAnim.classList.add('show');
-                        setTimeout(() => {
-                            successAnim.classList.remove('show');
-                            // Open the page in a new tab
-                            window.open(data.liveUrl, '_blank');
-                        }, 2000);
-                    }
-                    
-                    document.getElementById('pageName').value = '';
-                    document.getElementById('instructions').value = '';
-                    loadPages();
-                } else {
-                    showMessage(`❌ ${data.error}: ${data.details || ''}`, 'error');
-                }
-            } catch (error) {
-                showMessage(`❌ Error: ${error.message}`, 'error');
-            } finally {
-                button.disabled = false;
-                loading.classList.remove('active');
-            }
-        }
-
-        async function loadPages() {
-            try {
-                const response = await fetch('/api/list-pages');
-                const data = await response.json();
-                const pagesList = document.getElementById('pagesList');
-
-                if (data.pages && data.pages.length > 0) {
-                    pagesList.innerHTML = data.pages.map(page => `
-                        <div class="page-item">
-                            <div class="page-info">
-                                <div class="page-name">
-                                    ${page.title || page.name}
-                                    ${page.liveUrl ? '<span class="live-indicator"><span class="live-dot"></span>LIVE</span>' : ''}
-                                </div>
-                                ${page.liveUrl ? 
-                                    `<div class="page-url">🔗 <a href="${page.liveUrl}" target="_blank">${page.liveUrl}</a></div>` :
-                                    `<div class="page-url">📄 Local preview available</div>`
-                                }
-                                <div class="page-date">Created: ${new Date(page.createdAt).toLocaleString()}</div>
-                            </div>
-                            <div class="page-actions">
-                                <button class="btn-small btn-view" onclick="window.open('${page.url || page.liveUrl}', '_blank')">View</button>
-                                ${page.liveUrl ? 
-                                    `<button class="btn-small btn-copy" onclick="copyUrl('${page.liveUrl}')">Copy URL</button>` : ''
-                                }
-                                <button class="btn-small btn-delete" onclick="deletePage('${page.name}')">Delete</button>
-                            </div>
-                        </div>
-                    `).join('');
-                } else {
-                    pagesList.innerHTML = `
-                        <div class="empty-state">
-                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-                                <polyline points="14 2 14 8 20 8"></polyline>
-                                <line x1="16" y1="13" x2="8" y2="13"></line>
-                                <line x1="16" y1="17" x2="8" y2="17"></line>
-                                <polyline points="10 9 9 9 8 9"></polyline>
-                            </svg>
-                            <p>No pages created yet. Generate your first landing page above!</p>
-                            <p style="margin-top: 10px; font-size: 0.9rem; color: #666;">Pages publish instantly and are accessible immediately!</p>
-                        </div>
-                    `;
-                }
-            } catch (error) {
-                console.error('Error loading pages:', error);
-            }
-        }
-
-        async function deletePage(pageName) {
-            if (!confirm(`Are you sure you want to delete ${pageName}?`)) {
-                return;
-            }
-
-            try {
-                const response = await fetch(`/api/delete-page?name=${pageName}`, {
-                    method: 'DELETE'
-                });
-
-                if (response.ok) {
-                    showMessage('Page deleted successfully', 'success');
-                    loadPages();
-                } else {
-                    showMessage('Failed to delete page', 'error');
-                }
-            } catch (error) {
-                showMessage(`Error deleting page: ${error.message}`, 'error');
-            }
-        }
-
-        function copyUrl(url) {
-            navigator.clipboard.writeText(url).then(() => {
-                showMessage('URL copied to clipboard!', 'success');
-            }).catch(() => {
-                showMessage('Failed to copy URL', 'error');
+    // Load existing pages from API
+    async function loadExistingPages() {
+      try {
+        const response = await fetch('/api/list-pages');
+        const data = await response.json();
+        
+        if (data.pages && data.pages.length > 0) {
+          // Create a default project if none exists
+          if (state.projects.length === 0) {
+            state.projects.push({
+              id: 'default',
+              name: 'My Pages',
+              type: 'website',
+              pages: data.pages.map(p => ({
+                id: p.name,
+                name: p.title || p.name,
+                type: 'landing',
+                url: p.url,
+                liveUrl: p.liveUrl
+              }))
             });
+            state.currentProject = 'default';
+            saveState();
+            renderProjects();
+            renderPages();
+          }
         }
+      } catch (error) {
+        console.error('Error loading pages:', error);
+      }
+    }
 
-        function showMessage(text, type) {
-            const message = document.getElementById('message');
-            message.innerHTML = text;
-            message.className = `message ${type}`;
-            
-            setTimeout(() => {
-                message.className = 'message';
-            }, 5000);
-        }
+    // Toggle panel
+    function togglePanel() {
+      document.getElementById('chatPanel').classList.toggle('collapsed');
+    }
 
-        // Initialize
-        document.addEventListener('DOMContentLoaded', () => {
-            checkMode();
-            loadPages();
+    // Modal functions
+    function showNewProjectModal() {
+      document.getElementById('newProjectModal').classList.add('active');
+    }
+
+    function showNewPageModal() {
+      if (!state.currentProject) {
+        alert('Please create a project first');
+        return;
+      }
+      document.getElementById('newPageModal').classList.add('active');
+    }
+
+    function closeModal(modalId) {
+      document.getElementById(modalId).classList.remove('active');
+    }
+
+    // Create project
+    function createProject() {
+      const name = document.getElementById('projectName').value;
+      const type = document.getElementById('projectType').value;
+      
+      if (!name) {
+        alert('Please enter a project name');
+        return;
+      }
+
+      const project = {
+        id: Date.now().toString(),
+        name: name,
+        type: type,
+        pages: []
+      };
+
+      state.projects.push(project);
+      state.currentProject = project.id;
+      saveState();
+      renderProjects();
+      renderPages();
+      closeModal('newProjectModal');
+      
+      // Add initial message
+      addMessage('ai', `Great! I've created the "${name}" project. What would you like to build first?`);
+    }
+
+    // Create page
+    function createPage() {
+      const name = document.getElementById('pageName').value;
+      const type = document.getElementById('pageType').value;
+      
+      if (!name) {
+        alert('Please enter a page name');
+        return;
+      }
+
+      const page = {
+        id: Date.now().toString(),
+        name: name,
+        type: type,
+        content: null
+      };
+
+      const project = state.projects.find(p => p.id === state.currentProject);
+      if (project) {
+        project.pages.push(page);
+        state.currentPage = page.id;
+        saveState();
+        renderPages();
+        closeModal('newPageModal');
+        
+        // Start conversation for this page
+        addMessage('ai', `Let's create your ${type === 'custom' ? '' : type} "${name}". What should this page include?`);
+      }
+    }
+
+    // Render projects
+    function renderProjects() {
+      const container = document.getElementById('projectTabs');
+      container.innerHTML = '<button class="new-project-btn" onclick="showNewProjectModal()">+ New Project</button>';
+      
+      state.projects.forEach(project => {
+        const tab = document.createElement('button');
+        tab.className = `project-tab ${project.id === state.currentProject ? 'active' : ''}`;
+        tab.textContent = project.name;
+        tab.onclick = () => switchProject(project.id);
+        container.appendChild(tab);
+      });
+    }
+
+    // Render pages
+    function renderPages() {
+      const select = document.getElementById('pageSelect');
+      select.innerHTML = '<option value="">Select a page...</option>';
+      
+      const project = state.projects.find(p => p.id === state.currentProject);
+      if (project && project.pages) {
+        project.pages.forEach(page => {
+          const option = document.createElement('option');
+          option.value = page.id;
+          option.textContent = `${page.name} (${page.type})`;
+          if (page.id === state.currentPage) {
+            option.selected = true;
+          }
+          select.appendChild(option);
         });
-    </script>
+      }
+    }
+
+    // Switch project
+    function switchProject(projectId) {
+      state.currentProject = projectId;
+      state.currentPage = null;
+      saveState();
+      renderProjects();
+      renderPages();
+      loadChatHistory();
+    }
+
+    // Switch page
+    function switchPage() {
+      const select = document.getElementById('pageSelect');
+      state.currentPage = select.value;
+      saveState();
+      loadChatHistory();
+      updatePreview();
+    }
+
+    // Load chat history
+    function loadChatHistory() {
+      const key = `${state.currentProject}_${state.currentPage}`;
+      const messages = state.chatHistory[key] || [];
+      const container = document.getElementById('chatMessages');
+      
+      container.innerHTML = '';
+      if (messages.length === 0) {
+        addMessage('ai', 'Ready to edit this page. Tell me what changes you want to make!', false);
+      } else {
+        messages.forEach(msg => addMessage(msg.role, msg.content, false));
+      }
+    }
+
+    // Add message
+    function addMessage(role, content, save = true) {
+      const container = document.getElementById('chatMessages');
+      const message = document.createElement('div');
+      message.className = `message ${role}`;
+      message.innerHTML = `
+        <div class="message-avatar">${role === 'ai' ? 'AI' : 'You'}</div>
+        <div class="message-content">${content}</div>
+      `;
+      container.appendChild(message);
+      container.scrollTop = container.scrollHeight;
+
+      if (save && state.currentProject && state.currentPage) {
+        const key = `${state.currentProject}_${state.currentPage}`;
+        if (!state.chatHistory[key]) {
+          state.chatHistory[key] = [];
+        }
+        state.chatHistory[key].push({ role, content });
+        saveState();
+      }
+    }
+
+    // Handle key press
+    function handleKeyPress(event) {
+      if (event.key === 'Enter' && !event.shiftKey) {
+        sendMessage();
+      }
+    }
+
+    // Send message
+    async function sendMessage() {
+      const input = document.getElementById('chatInput');
+      const message = input.value.trim();
+      
+      if (!message || state.isGenerating) return;
+      
+      if (!state.currentProject || !state.currentPage) {
+        alert('Please select or create a project and page first');
+        return;
+      }
+
+      // Add user message
+      addMessage('user', message);
+      input.value = '';
+
+      // Disable input while generating
+      state.isGenerating = true;
+      document.getElementById('sendBtn').disabled = true;
+      document.getElementById('sendBtn').innerHTML = '<span class="loading"></span>';
+
+      try {
+        // Get current page
+        const project = state.projects.find(p => p.id === state.currentProject);
+        const page = project?.pages.find(p => p.id === state.currentPage);
+        
+        if (!page) {
+          throw new Error('Page not found');
+        }
+
+        // Prepare context
+        const context = {
+          projectName: project.name,
+          projectType: project.type,
+          pageName: page.name,
+          pageType: page.type,
+          currentContent: page.content,
+          otherPages: project.pages.filter(p => p.id !== page.id).map(p => p.name),
+          instruction: message
+        };
+
+        // Call API to generate/update page
+        const response = await fetch('/api/generate-page', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            instructions: buildPrompt(context),
+            pageName: page.name
+          })
+        });
+
+        const data = await response.json();
+        
+        if (data.success) {
+          // Update page content
+          page.content = data.htmlContent || data.blobUrl;
+          page.url = data.pageUrl;
+          page.liveUrl = data.liveUrl;
+          saveState();
+          
+          // Update preview
+          updatePreview();
+          
+          // Add AI response
+          addMessage('ai', `✅ Page updated successfully! You can see the changes in the preview.`);
+        } else {
+          throw new Error(data.error || 'Failed to generate page');
+        }
+      } catch (error) {
+        console.error('Error:', error);
+        addMessage('ai', `❌ Sorry, there was an error: ${error.message}`);
+      } finally {
+        state.isGenerating = false;
+        document.getElementById('sendBtn').disabled = false;
+        document.getElementById('sendBtn').textContent = 'Send';
+      }
+    }
+
+    // Build prompt
+    function buildPrompt(context) {
+      let prompt = '';
+      
+      if (context.currentContent) {
+        prompt = `Update the existing ${context.pageType} page "${context.pageName}" with these changes: ${context.instruction}\n\n`;
+        prompt += `Current page content to modify:\n${context.currentContent}\n\n`;
+      } else {
+        prompt = `Create a ${context.pageType} page called "${context.pageName}" for the ${context.projectName} project. `;
+        prompt += `${context.instruction}\n\n`;
+      }
+      
+      if (context.otherPages.length > 0) {
+        prompt += `This project also has these pages that should be linked appropriately: ${context.otherPages.join(', ')}\n`;
+      }
+      
+      return prompt;
+    }
+
+    // Update preview
+    function updatePreview() {
+      const project = state.projects.find(p => p.id === state.currentProject);
+      const page = project?.pages.find(p => p.id === state.currentPage);
+      
+      if (page && page.liveUrl) {
+        const frame = document.getElementById('previewFrame');
+        const empty = document.getElementById('emptyPreview');
+        const url = document.getElementById('previewUrl');
+        
+        frame.src = page.liveUrl;
+        frame.style.display = 'block';
+        empty.style.display = 'none';
+        url.textContent = page.liveUrl;
+      }
+    }
+
+    // Device selection
+    function setDevice(device) {
+      state.device = device;
+      const wrapper = document.getElementById('previewWrapper');
+      wrapper.className = `preview-frame-wrapper ${device}`;
+      
+      document.querySelectorAll('.device-btn').forEach(btn => {
+        btn.classList.remove('active');
+      });
+      event.target.classList.add('active');
+    }
+
+    // Preview actions
+    function refreshPreview() {
+      const frame = document.getElementById('previewFrame');
+      if (frame.src) {
+        frame.src = frame.src;
+      }
+    }
+
+    function openInNewTab() {
+      const frame = document.getElementById('previewFrame');
+      if (frame.src) {
+        window.open(frame.src, '_blank');
+      }
+    }
+
+    function publishPage() {
+      const project = state.projects.find(p => p.id === state.currentProject);
+      const page = project?.pages.find(p => p.id === state.currentPage);
+      
+      if (page && page.liveUrl) {
+        addMessage('ai', `🚀 Page is already published at: ${page.liveUrl}`);
+      } else {
+        addMessage('ai', '⚠️ Please generate the page content first before publishing.');
+      }
+    }
+
+    // Link pages
+    function linkPages() {
+      // TODO: Implement page linking functionality
+      alert('Page linking coming soon! This will allow you to connect pages in your funnel.');
+    }
+  </script>
 </body>
 </html>

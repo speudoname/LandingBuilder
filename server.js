@@ -14,8 +14,14 @@ const anthropic = new Anthropic({
 
 app.use(cors());
 app.use(express.json());
-app.use(express.static('public'));
-app.use('/pages', express.static('generated-pages'));
+
+// Serve the new index.html and other static files from root
+app.use(express.static(__dirname));
+
+// Serve the index.html for root route
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'index.html'));
+});
 
 app.post('/api/generate-page', async (req, res) => {
   try {
