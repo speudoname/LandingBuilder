@@ -3,9 +3,10 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "start": "node server-final.js",
-    "dev": "node server-final.js",
+    "start": "node server-instant.js",
+    "dev": "node server-instant.js",
     "start:old": "node server.js",
+    "start:draft": "node server-final.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
