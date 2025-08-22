@@ -941,6 +941,9 @@
           instruction: message
         };
 
+        console.log('Sending request with context:', context);
+        console.log('Built prompt:', buildPrompt(context));
+
         // Call API to generate/update page
         const response = await fetch('/api/generate-page', {
           method: 'POST',
@@ -950,6 +953,12 @@
             pageName: page.name
           })
         });
+
+        if (!response.ok) {
+          const errorText = await response.text();
+          console.error('API Error Response:', errorText);
+          throw new Error(`API Error: ${response.status} - ${errorText}`);
+        }
 
         const data = await response.json();
         
