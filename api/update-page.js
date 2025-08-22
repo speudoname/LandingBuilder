@@ -20,31 +20,38 @@ module.exports = async (req, res) => {
   }
 
   try {
-    const { instructions, pageName } = req.body;
+    const { pageName, currentContent, instruction, context } = req.body;
     
-    if (!instructions || !pageName) {
-      return res.status(400).json({ error: 'Instructions and page name are required' });
+    if (!pageName || !instruction) {
+      return res.status(400).json({ error: 'Page name and instruction are required' });
     }
 
-    console.log('Generating page with instructions:', instructions);
-
-    // Enhanced prompt that can handle both creation and editing
-    const isUpdate = instructions.includes('Update the existing') || instructions.includes('Current page content to modify');
+    // Build the update prompt
+    let prompt = `You are an expert web developer. `;
     
-    const prompt = `You are an expert web developer. ${instructions}
+    if (currentContent) {
+      prompt += `Update this existing HTML page with the following changes: ${instruction}\n\n`;
+      prompt += `Current HTML to modify:\n${currentContent}\n\n`;
+    } else {
+      prompt += `Create a new ${context?.pageType || 'landing'} page with these requirements: ${instruction}\n\n`;
+    }
     
+    if (context?.otherPages && context.otherPages.length > 0) {
+      prompt += `This is part of a funnel/website with these other pages: ${context.otherPages.join(', ')}. `;
+      prompt += `Add appropriate navigation or links to these pages where relevant.\n\n`;
+    }
+    
+    prompt += `
     Requirements:
-    - Create a single HTML file with embedded CSS and JavaScript
-    - Make it fully responsive and mobile-friendly
-    - Use modern CSS (flexbox, grid, animations)
-    - Include semantic HTML5 elements
-    - Add smooth scrolling and interactive elements where appropriate
-    - Use a professional color scheme and typography
-    - Include all necessary meta tags for SEO
-    - Add viewport meta tag for mobile responsiveness
-    ${isUpdate ? '- Preserve the overall structure and style while making the requested changes' : ''}
+    - Return a complete, valid HTML file
+    - Preserve existing functionality while making requested changes
+    - Ensure all links and forms work properly
+    - Keep the design consistent
+    - Make it responsive and professional
     
-    Return ONLY the complete HTML code, nothing else. Start with <!DOCTYPE html> and end with </html>.`;
+    Return ONLY the complete HTML code, nothing else.`;
+
+    console.log('Updating page with instruction:', instruction);
 
     const message = await anthropic.messages.create({
       model: 'claude-3-haiku-20240307',
@@ -69,47 +76,48 @@ module.exports = async (req, res) => {
       return res.status(200).json({ 
         success: false, 
         error: 'Blob Storage not configured',
-        message: '⚠️ Blob Storage needs to be connected in Vercel Dashboard > Storage',
-        htmlContent: htmlContent // Still return the generated HTML
+        htmlContent: htmlContent
       });
     }
     
-    // Save to Vercel Blob Storage
+    // Update in Vercel Blob Storage
     const { put } = require('@vercel/blob');
     const { url } = await put(`pages/${fileName}`, htmlContent, {
       access: 'public',
       contentType: 'text/html',
+      addRandomSuffix: false
     });
     
-    // Also save metadata
+    // Update metadata
     await put(`metadata/${sanitizedPageName}.json`, JSON.stringify({
       name: sanitizedPageName,
       title: pageName,
-      instructions: instructions,
-      createdAt: new Date().toISOString(),
+      instructions: instruction,
+      updatedAt: new Date().toISOString(),
       pageUrl: url,
       fileName: fileName
     }), {
       access: 'public',
       contentType: 'application/json',
+      addRandomSuffix: false
     });
     
-    console.log('Page published to:', url);
+    console.log('Page updated at:', url);
     
     res.status(200).json({ 
       success: true, 
       fileName: fileName,
       pageName: sanitizedPageName,
-      pageUrl: `/${sanitizedPageName}.html`,  // Clean HTML URL
-      blobUrl: url,  // Keep blob URL for reference
-      liveUrl: `https://landinger.vercel.app/${sanitizedPageName}.html`,  // Clean HTML URL on your domain
-      message: '🎉 Page published instantly! It\'s live right now on your domain!'
+      pageUrl: `/${sanitizedPageName}.html`,
+      blobUrl: url,
+      liveUrl: `https://landinger.vercel.app/${sanitizedPageName}.html`,
+      htmlContent: htmlContent
     });
 
   } catch (error) {
-    console.error('Error generating page:', error);
+    console.error('Error updating page:', error);
     res.status(500).json({ 
-      error: 'Failed to generate page', 
+      error: 'Failed to update page', 
       details: error.message 
     });
   }
