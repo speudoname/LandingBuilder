@@ -1069,12 +1069,14 @@
           page.blobUrl = data.blobUrl;
           saveState();
           
-          // Update preview
-          updatePreview();
+          // Update preview with a small delay to ensure Blob Storage has propagated
+          setTimeout(() => {
+            updatePreview();
+          }, 1000);  // 1 second delay for Blob Storage propagation
           
           // Add AI response with more specific feedback
           const action = page.content ? 'updated' : 'created';
-          addMessage('ai', `✅ Page ${action} successfully! You can see the changes in the preview. What would you like to modify next?`);
+          addMessage('ai', `✅ Page ${action} successfully! The preview will refresh in a moment. What would you like to modify next?`);
         } else {
           throw new Error(data.error || 'Failed to generate page');
         }
@@ -1105,10 +1107,14 @@
         const empty = document.getElementById('emptyPreview');
         const url = document.getElementById('previewUrl');
         
-        frame.src = page.liveUrl;
+        // Force refresh by adding timestamp to URL
+        const refreshUrl = page.liveUrl + '?t=' + Date.now();
+        frame.src = refreshUrl;
         frame.style.display = 'block';
         empty.style.display = 'none';
         url.textContent = page.liveUrl;
+        
+        console.log('Preview updated:', refreshUrl);
       }
     }
 
@@ -1128,7 +1134,10 @@
     function refreshPreview() {
       const frame = document.getElementById('previewFrame');
       if (frame.src) {
-        frame.src = frame.src;
+        // Force refresh by updating the URL with new timestamp
+        const baseUrl = frame.src.split('?')[0];
+        frame.src = baseUrl + '?t=' + Date.now();
+        console.log('Manual refresh triggered');
       }
     }
 
