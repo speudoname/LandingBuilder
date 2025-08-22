@@ -37,7 +37,7 @@ module.exports = async (req, res) => {
         pages.push({
           name: metadata.name,
           title: metadata.title,
-          url: `/api/page/${metadata.name}`,
+          url: `/api/view?page=${metadata.name}`,
           created: metadata.createdAt
         });
       } catch (error) {
