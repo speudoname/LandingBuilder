@@ -1,5 +1,3 @@
-const { list } = require('@vercel/blob');
-
 module.exports = async (req, res) => {
   // Enable CORS
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -18,35 +16,47 @@ module.exports = async (req, res) => {
   try {
     const pages = [];
     
-    // List from Blob Storage
-    const { blobs } = await list({
-      prefix: 'metadata/',
-      limit: 1000
-    });
-
-    for (const blob of blobs) {
-      try {
-        const response = await fetch(blob.url);
-        const metadata = await response.json();
-        pages.push({
-          ...metadata,
-          url: metadata.pageUrl,
-          liveUrl: metadata.pageUrl // It's already live!
-        });
-      } catch (error) {
-        console.error('Error reading metadata:', error);
-      }
-    }
+    // Check if Blob Storage is configured
+    const hasBlob = !!(process.env.BLOB_READ_WRITE_TOKEN || process.env.VERCEL_BLOB_READ_WRITE_TOKEN);
     
-    // Sort by creation date (newest first)
-    pages.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+    if (hasBlob) {
+      const { list } = require('@vercel/blob');
+      
+      // List from Blob Storage
+      const { blobs } = await list({
+        prefix: 'metadata/',
+        limit: 1000
+      });
+
+      for (const blob of blobs) {
+        try {
+          const response = await fetch(blob.url);
+          const metadata = await response.json();
+          pages.push({
+            ...metadata,
+            url: metadata.pageUrl,
+            liveUrl: metadata.pageUrl // It's already live!
+          });
+        } catch (error) {
+          console.error('Error reading metadata:', error);
+        }
+      }
+      
+      // Sort by creation date (newest first)
+      pages.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+    }
     
     res.status(200).json({ 
       pages,
-      mode: 'production'
+      mode: hasBlob ? 'production' : 'no-blob-storage',
+      message: hasBlob ? null : 'Blob Storage not configured. Connect it in Vercel Dashboard > Storage.'
     });
   } catch (error) {
     console.error('Error listing pages:', error);
-    res.status(500).json({ error: 'Failed to list pages' });
+    res.status(200).json({ 
+      pages: [],
+      mode: 'error',
+      message: 'Blob Storage needs to be connected. Visit Vercel Dashboard > Storage to set it up.'
+    });
   }
 };

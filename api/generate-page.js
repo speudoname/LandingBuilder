@@ -1,5 +1,4 @@
 const Anthropic = require('@anthropic-ai/sdk');
-const { put } = require('@vercel/blob');
 
 const anthropic = new Anthropic({
   apiKey: process.env.ANTHROPIC_API_KEY,
@@ -59,7 +58,20 @@ module.exports = async (req, res) => {
     const sanitizedPageName = pageName.replace(/[^a-z0-9-_]/gi, '_').toLowerCase();
     const fileName = `${sanitizedPageName}.html`;
     
+    // Check if Blob Storage is configured
+    const hasBlob = !!(process.env.BLOB_READ_WRITE_TOKEN || process.env.VERCEL_BLOB_READ_WRITE_TOKEN);
+    
+    if (!hasBlob) {
+      return res.status(200).json({ 
+        success: false, 
+        error: 'Blob Storage not configured',
+        message: '⚠️ Blob Storage needs to be connected in Vercel Dashboard > Storage',
+        htmlContent: htmlContent // Still return the generated HTML
+      });
+    }
+    
     // Save to Vercel Blob Storage
+    const { put } = require('@vercel/blob');
     const { url } = await put(`pages/${fileName}`, htmlContent, {
       access: 'public',
       contentType: 'text/html',
