@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Send Button</title>
+</head>
+<body>
+    <h1>Testing Send Button</h1>
+    <input type="text" id="testInput" placeholder="Type something...">
+    <button onclick="testSend()">Test Send</button>
+    <div id="output"></div>
+    
+    <script>
+        function testSend() {
+            const value = document.getElementById('testInput').value;
+            document.getElementById('output').innerHTML = 'You typed: ' + value;
+            console.log('Button clicked with value:', value);
+        }
+        
+        // Test if basic JavaScript works
+        console.log('Test page loaded successfully');
+    </script>
+</body>
+</html>

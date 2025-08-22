@@ -579,7 +579,7 @@
             placeholder="Describe what you want to build or change..."
             onkeypress="handleKeyPress(event)"
           >
-          <button class="send-btn" id="sendBtn" onclick="sendMessage()">Send</button>
+          <button class="send-btn" id="sendBtn" onclick="console.log('Button clicked'); sendMessage()">Send</button>
         </div>
       </div>
     </div>
@@ -693,14 +693,42 @@
 
     // Initialize
     document.addEventListener('DOMContentLoaded', () => {
+      console.log('DOM loaded, initializing...');
       loadState();
       loadExistingPages();
+      
+      // Add event listener as backup for send button
+      const sendBtn = document.getElementById('sendBtn');
+      if (sendBtn) {
+        sendBtn.addEventListener('click', function(e) {
+          console.log('Send button clicked via event listener');
+          sendMessage();
+        });
+      }
+      
+      // Also add Enter key handler for input
+      const input = document.getElementById('chatInput');
+      if (input) {
+        input.addEventListener('keydown', function(e) {
+          if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault();
+            console.log('Enter key pressed');
+            sendMessage();
+          }
+        });
+      }
+      
+      console.log('Initialization complete');
     });
 
     // Load existing pages from API
     async function loadExistingPages() {
       try {
         const response = await fetch('/api/list-pages');
+        if (!response.ok) {
+          console.log('Could not load existing pages, starting fresh');
+          return;
+        }
         const data = await response.json();
         
         if (data.pages && data.pages.length > 0) {
@@ -725,7 +753,8 @@
           }
         }
       } catch (error) {
-        console.error('Error loading pages:', error);
+        console.error('Error loading pages (this is ok on first load):', error);
+        // Don't break the app if API is not available
       }
     }
 
@@ -914,10 +943,15 @@
 
     // Send message
     async function sendMessage() {
+      console.log('sendMessage function called');
       const input = document.getElementById('chatInput');
       const message = input.value.trim();
+      console.log('Message:', message, 'isGenerating:', state.isGenerating);
       
-      if (!message || state.isGenerating) return;
+      if (!message || state.isGenerating) {
+        console.log('Returning early - no message or already generating');
+        return;
+      }
       
       // If no project exists, create one automatically
       if (!state.currentProject) {
