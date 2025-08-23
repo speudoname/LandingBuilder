@@ -1,3 +1,5 @@
+const { getBlobUrl } = require('./config/blob');
+
 module.exports = async (req, res) => {
   // Get the page name from query parameter
   const { page } = req.query;
@@ -15,7 +17,7 @@ module.exports = async (req, res) => {
     }
     
     // Construct the blob URL
-    const blobUrl = `https://nvldrzv6kcjoahys.public.blob.vercel-storage.com/pages/${page}.html`;
+    const blobUrl = getBlobUrl(`pages/${page}.html`);
     
     // Fetch the HTML content from Blob Storage
     const response = await fetch(blobUrl);

@@ -1,4 +1,5 @@
 const Anthropic = require('@anthropic-ai/sdk');
+const { getBlobUrl } = require('./config/blob');
 
 const anthropic = new Anthropic({
   apiKey: process.env.ANTHROPIC_API_KEY,
@@ -33,7 +34,7 @@ module.exports = async (req, res) => {
     // ALWAYS check if page exists and fetch its content for context
     let existingContent = null;
     const sanitizedPageName = pageName.replace(/[^a-z0-9-_]/gi, '_').toLowerCase();
-    const blobUrl = `https://nvldrzv6kcjoahys.public.blob.vercel-storage.com/pages/${sanitizedPageName}.html`;
+    const blobUrl = getBlobUrl(`pages/${sanitizedPageName}.html`);
     
     try {
       const existingResponse = await fetch(blobUrl);

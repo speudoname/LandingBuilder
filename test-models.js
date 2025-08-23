@@ -33,24 +33,26 @@ async function testAllModels() {
   console.log('API Key:', process.env.ANTHROPIC_API_KEY ? 'Found' : 'Not found');
   
   const models = [
-    // Claude 3.5 models
-    'claude-3-5-sonnet-20241022',    // Latest Sonnet 3.5
-    'claude-3-5-sonnet-20240620',    // Previous Sonnet 3.5
-    'claude-3-5-haiku-20241022',     // Haiku 3.5
+    // Claude Opus 4 models (LATEST!)
+    'claude-opus-4-1-20250805',       // Opus 4.1 - newest
+    'claude-opus-4-1',                // Opus 4.1 alias
+    'claude-opus-4-20250514',         // Opus 4
+    'claude-opus-4-0',                // Opus 4 alias
     
-    // Claude 3 Opus
-    'claude-3-opus-20240229',         // Opus
+    // Claude Sonnet 4 models
+    'claude-sonnet-4-20250514',       // Sonnet 4
+    'claude-sonnet-4-0',              // Sonnet 4 alias
     
-    // Claude 3 Sonnet
-    'claude-3-sonnet-20240229',       // Original Sonnet
+    // Claude Sonnet 3.7
+    'claude-3-7-sonnet-20250219',     // Sonnet 3.7
+    'claude-3-7-sonnet-latest',       // Sonnet 3.7 alias
+    
+    // Claude 3.5 Haiku
+    'claude-3-5-haiku-20241022',      // Haiku 3.5
+    'claude-3-5-haiku-latest',        // Haiku 3.5 alias
     
     // Claude 3 Haiku
-    'claude-3-haiku-20240307',        // Haiku (we know this works)
-    
-    // Older models
-    'claude-2.1',
-    'claude-2.0',
-    'claude-instant-1.2'
+    'claude-3-haiku-20240307',        // Haiku 3 (older)
   ];
 
   const results = {};

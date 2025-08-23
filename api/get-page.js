@@ -1,3 +1,5 @@
+const { getBlobUrl } = require('./config/blob');
+
 module.exports = async (req, res) => {
   // Enable CORS
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -28,7 +30,7 @@ module.exports = async (req, res) => {
     }
     
     // Fetch the HTML content from Blob Storage
-    const blobUrl = `https://nvldrzv6kcjoahys.public.blob.vercel-storage.com/pages/${page}.html`;
+    const blobUrl = getBlobUrl(`pages/${page}.html`);
     const response = await fetch(blobUrl);
     
     if (!response.ok) {
@@ -40,7 +42,7 @@ module.exports = async (req, res) => {
     // Also try to get metadata
     let metadata = {};
     try {
-      const metaUrl = `https://nvldrzv6kcjoahys.public.blob.vercel-storage.com/metadata/${page}.json`;
+      const metaUrl = getBlobUrl(`metadata/${page}.json`);
       const metaResponse = await fetch(metaUrl);
       if (metaResponse.ok) {
         metadata = await metaResponse.json();
